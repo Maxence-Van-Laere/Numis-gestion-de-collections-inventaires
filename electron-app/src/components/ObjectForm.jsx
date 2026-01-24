@@ -1,0 +1,456 @@
+import React, { useState } from 'react'
+import ObjectDetails from './ObjectDetails'
+
+export default function ObjectForm({ collection, collections, objects, onCreate, onDelete, onUpdate }) {
+  const [form, setForm] = useState({ label: '', cheminPhoto: '', commentaires: '', dateAcquisition: '', dateProduction: '' })
+  const [searchText, setSearchText] = useState('')
+  const [editMode, setEditMode] = useState(false)
+  const [showAddModal, setShowAddModal] = useState(false)
+  const [selectedIds, setSelectedIds] = useState(new Set())
+  const [selectedObject, setSelectedObject] = useState(null)
+  const [uploading, setUploading] = useState(false)
+
+  const getPhotoSrc = (o) => {
+    // Utilise le chemin de fichier ou la base64
+    if (o.cheminPhoto) return `http://127.0.0.1:5555/files/${o.cheminPhoto}`
+    if (o.photoBase64) return `data:image/png;base64,${o.photoBase64}`
+    if (o.photo) return o.photo
+    return null
+  }
+
+  const filteredObjects = objects.filter(o => 
+    o.label?.toLowerCase().includes(searchText.toLowerCase())
+  )
+
+  const toggleSelect = (id) => {
+    const newSelected = new Set(selectedIds)
+    if (newSelected.has(id)) {
+      newSelected.delete(id)
+    } else {
+      newSelected.add(id)
+    }
+    setSelectedIds(newSelected)
+  }
+
+  const cancelEdit = () => {
+    setEditMode(false)
+    setSelectedIds(new Set())
+  }
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploading(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const response = await fetch('http://127.0.0.1:5555/upload', {
+        method: 'POST',
+        body: formData
+      })
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de l\'upload')
+      }
+
+      const data = await response.json()
+      setForm(prev => ({ ...prev, cheminPhoto: data.path }))
+    } catch (error) {
+      console.error('Erreur upload:', error)
+      alert('Erreur lors de l\'upload de l\'image')
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (!form.label.trim()) {
+      alert('Le champ "Label" est obligatoire !')
+      return
+    }
+    
+    const newObject = {
+      // L'API C# attend camelCase : collectionId
+      collectionId: collection.id,
+      label: form.label,
+      cheminPhoto: form.cheminPhoto || null,
+      commentaires: form.commentaires || null,
+      dateAcquisition: form.dateAcquisition ? new Date(form.dateAcquisition).toISOString() : null,
+      dateProduction: form.dateProduction ? new Date(form.dateProduction).toISOString() : null
+    }
+    
+    await onCreate(newObject)
+    setForm({ label: '', cheminPhoto: '', commentaires: '', dateAcquisition: '', dateProduction: '' })
+    setShowAddModal(false)
+  }
+
+  return (
+    <div>
+      <ObjectDetails 
+        object={selectedObject}
+        collections={collections}
+        onClose={() => setSelectedObject(null)}
+        onSave={async (payload) => {
+          if (!selectedObject) return
+          await window.api.updateObject(selectedObject.id, payload)
+          if (onUpdate) await onUpdate()
+          setSelectedObject(null)
+        }}
+      />
+
+      {/* Modal d'ajout */}
+      {showAddModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            background: '#fff',
+            padding: 30,
+            borderRadius: 12,
+            boxShadow: '0 10px 40px rgba(0,0,0,0.2)',
+            width: '90%',
+            maxWidth: 500
+          }}>
+            <h2 style={{ marginTop: 0, marginBottom: 20 }}>Ajouter un nouvel objet</h2>
+            
+            <form onSubmit={handleSubmit}>
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ display: 'block', marginBottom: 6, fontWeight: 600 }}>
+                  Label <span style={{ color: '#e74c3c' }}>*</span>
+                </label>
+                <input
+                  type="text"
+                  value={form.label}
+                  onChange={(e) => setForm({ ...form, label: e.target.value })}
+                  placeholder="Nom de l'objet (obligatoire)"
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '1px solid #ddd',
+                    borderRadius: 6,
+                    fontSize: 14,
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ display: 'block', marginBottom: 6, fontWeight: 600 }}>
+                  Photo
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileUpload}
+                  disabled={uploading}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '1px solid #ddd',
+                    borderRadius: 6,
+                    fontSize: 14,
+                    boxSizing: 'border-box',
+                    cursor: uploading ? 'not-allowed' : 'pointer'
+                  }}
+                />
+                {uploading && <div style={{ marginTop: 8, color: '#3498db', fontSize: 14 }}>Upload en cours...</div>}
+                {form.cheminPhoto && (
+                  <div style={{ marginTop: 8, fontSize: 14, color: '#27ae60' }}>
+                    ✓ Image uploadée : {form.cheminPhoto}
+                  </div>
+                )}
+              </div>
+
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ display: 'block', marginBottom: 6, fontWeight: 600 }}>
+                  Date d'acquisition
+                </label>
+                <input
+                  type="date"
+                  value={form.dateAcquisition}
+                  onChange={(e) => setForm({ ...form, dateAcquisition: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '1px solid #ddd',
+                    borderRadius: 6,
+                    fontSize: 14,
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ display: 'block', marginBottom: 6, fontWeight: 600 }}>
+                  Date de production
+                </label>
+                <input
+                  type="date"
+                  value={form.dateProduction}
+                  onChange={(e) => setForm({ ...form, dateProduction: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '1px solid #ddd',
+                    borderRadius: 6,
+                    fontSize: 14,
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+
+              <div style={{ marginBottom: 20 }}>
+                <label style={{ display: 'block', marginBottom: 6, fontWeight: 600 }}>
+                  Commentaires
+                </label>
+                <textarea
+                  value={form.commentaires}
+                  onChange={(e) => setForm({ ...form, commentaires: e.target.value })}
+                  placeholder="Ajouter des commentaires (optionnel)"
+                  rows={4}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '1px solid #ddd',
+                    borderRadius: 6,
+                    fontSize: 14,
+                    boxSizing: 'border-box',
+                    resize: 'vertical'
+                  }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowAddModal(false)
+                    setForm({ label: '', cheminPhoto: '', commentaires: '', dateAcquisition: '', dateProduction: '' })
+                  }}
+                  style={{
+                    padding: '10px 20px',
+                    background: '#95a5a6',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: 6,
+                    cursor: 'pointer',
+                    fontWeight: 600
+                  }}
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  style={{
+                    padding: '10px 20px',
+                    background: '#27ae60',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: 6,
+                    cursor: 'pointer',
+                    fontWeight: 600
+                  }}
+                >
+                  Créer
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Section recherche et actions */}
+      <div style={{ 
+        background: '#fff', 
+        padding: 20, 
+        borderRadius: 8, 
+        boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+        marginBottom: 20 
+      }}>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          <input
+            placeholder="🔍 Rechercher un objet..."
+            value={searchText}
+            onChange={e => setSearchText(e.target.value)}
+            style={{
+              flex: 1,
+              padding: '10px 12px',
+              border: '1px solid #ddd',
+              borderRadius: 6,
+              fontSize: 14
+            }}
+          />
+          {!editMode && (
+            <button
+              onClick={() => setShowAddModal(true)}
+              style={{
+                padding: '10px 20px',
+                background: '#27ae60',
+                color: '#fff',
+                border: 'none',
+                borderRadius: 6,
+                cursor: 'pointer',
+                fontWeight: 600
+              }}
+            >
+              Ajouter
+            </button>
+          )}
+          <button
+            onClick={() => editMode ? cancelEdit() : setEditMode(true)}
+            style={{
+              padding: '10px 20px',
+              background: editMode ? '#e74c3c' : '#3498db',
+              color: '#fff',
+              border: 'none',
+              borderRadius: 6,
+              cursor: 'pointer',
+              fontWeight: 600
+            }}
+          >
+            {editMode ? 'Annuler' : 'Modifier'}
+          </button>
+          {editMode && (
+            <>
+              <button
+                style={{
+                  padding: '10px 20px',
+                  background: '#f39c12',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: 6,
+                  cursor: 'pointer',
+                  fontWeight: 600
+                }}
+              >
+                Déplacer ({selectedIds.size})
+              </button>
+              <button
+                onClick={() => {
+                  selectedIds.forEach(id => onDelete(id))
+                  setSelectedIds(new Set())
+                }}
+                style={{
+                  padding: '10px 20px',
+                  background: '#e74c3c',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: 6,
+                  cursor: 'pointer',
+                  fontWeight: 600
+                }}
+              >
+                Supprimer ({selectedIds.size})
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+
+      <div style={{ marginTop: 12 }}>
+        <h4>Objets</h4>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+          gap: 16,
+          marginTop: 12
+        }}>
+          {filteredObjects.map(o => {
+            const photoSrc = getPhotoSrc(o)
+            const isSelected = selectedIds.has(o.id)
+            return (
+              <div 
+                key={o.id} 
+                onClick={() => {
+                  if (editMode) {
+                    toggleSelect(o.id)
+                  } else {
+                    setSelectedObject(o)
+                  }
+                }}
+                style={{
+                  background: isSelected ? '#e8f4f8' : '#fff',
+                  borderRadius: 10,
+                  boxShadow: isSelected ? '0 0 0 3px #3498db' : '0 2px 8px rgba(0,0,0,0.06)',
+                  overflow: 'hidden',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  border: isSelected ? '2px solid #3498db' : '1px solid #eee',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}>
+                <div style={{
+                  height: 140,
+                  background: photoSrc ? `url(${photoSrc}) center/cover no-repeat` : 'linear-gradient(135deg,#dfe6e9,#b2bec3)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#555',
+                  fontSize: 32,
+                  fontWeight: 700,
+                  position: 'relative'
+                }}>
+                  {editMode && (
+                    <div style={{
+                      position: 'absolute',
+                      top: 10,
+                      right: 10,
+                      width: 24,
+                      height: 24,
+                      background: isSelected ? '#3498db' : '#fff',
+                      border: '2px solid #3498db',
+                      borderRadius: '4px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#fff',
+                      fontSize: 16,
+                      fontWeight: 'bold'
+                    }}>
+                      {isSelected && '✓'}
+                    </div>
+                  )}
+                  {!photoSrc && (o.label?.[0]?.toUpperCase() || '?')}
+                </div>
+                <div style={{ padding: 12, flex: 1, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  <div style={{ fontWeight: 700, color: '#2d3436' }}>{o.label}</div>
+                  <div style={{ color: '#636e72', fontSize: 13, lineHeight: 1.4 }}>
+                    {o.dateAcquisition ? new Date(o.dateAcquisition).toLocaleString() : 'Date inconnue'}
+                  </div>
+                  {!editMode && (
+                    <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'flex-end' }}>
+                      <button onClick={() => onDelete(o.id)} style={{
+                        padding: '6px 10px',
+                        background: '#d63031',
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: 6,
+                        cursor: 'pointer',
+                        fontSize: 12
+                      }}>
+                        Supprimer
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </div>
+  )
+}
