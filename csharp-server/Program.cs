@@ -209,8 +209,44 @@ app.MapGet("/files/{filename}", (string filename) => {
     return Results.File(filePath, contentType);
 });
 
+// Endpoint pour déplacer des objets vers une autre collection
+app.MapPost("/objects/move", (MoveObjectsDto dto) => {
+    Console.WriteLine($"[DEBUG] POST /objects/move - Déplacement de {dto.objectIds.Count} objets vers collection {dto.targetCollectionId}");
+    
+    if (dto.objectIds == null || dto.objectIds.Count == 0)
+    {
+        return Results.BadRequest(new { error = "Aucun objet à déplacer" });
+    }
+
+    var targetCollection = Database.listeCategories.FindById(dto.targetCollectionId);
+    if (targetCollection == null)
+    {
+        return Results.NotFound(new { error = "Collection cible introuvable" });
+    }
+
+    int movedCount = 0;
+    foreach (var objId in dto.objectIds)
+    {
+        var obj = Database.listeObjets.FindById(objId);
+        if (obj != null)
+        {
+            obj.CategorieId = dto.targetCollectionId;
+            Database.listeObjets.Update(obj);
+            movedCount++;
+        }
+    }
+
+    // Mettre à jour la date de modification de la collection cible
+    targetCollection.DateDerniereModif = DateTime.UtcNow;
+    Database.listeCategories.Update(targetCollection);
+
+    Console.WriteLine($"[DEBUG] -> {movedCount} objet(s) déplacé(s)");
+    return Results.Json(new { success = true, moved = movedCount });
+});
+
 app.Run();
 
 public record CreateCollectionDto(string name);
 public record CreateObjectDto(int collectionId, string label, string? cheminPhoto, DateTime? dateProduction, DateTime? dateAcquisition, string? commentaires);
 public record UpdateObjectDto(string? label, string? cheminPhoto, DateTime? dateProduction, DateTime? dateAcquisition, string? commentaires);
+public record MoveObjectsDto(List<int> objectIds, int targetCollectionId);

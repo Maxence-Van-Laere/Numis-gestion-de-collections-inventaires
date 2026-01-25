@@ -9,6 +9,9 @@ export default function ObjectForm({ collection, collections, objects, onCreate,
   const [selectedIds, setSelectedIds] = useState(new Set())
   const [selectedObject, setSelectedObject] = useState(null)
   const [uploading, setUploading] = useState(false)
+  const [showMoveModal, setShowMoveModal] = useState(false)
+  const [targetCollection, setTargetCollection] = useState(null)
+  const [moving, setMoving] = useState(false)
 
   const getPhotoSrc = (o) => {
     // Utilise le chemin de fichier ou la base64
@@ -85,6 +88,33 @@ export default function ObjectForm({ collection, collections, objects, onCreate,
     await onCreate(newObject)
     setForm({ label: '', cheminPhoto: '', commentaires: '', dateAcquisition: '', dateProduction: '' })
     setShowAddModal(false)
+  }
+
+  const handleMove = async () => {
+    if (!targetCollection) {
+      alert('Veuillez sélectionner une collection de destination')
+      return
+    }
+
+    if (targetCollection.id === collection.id) {
+      alert('Vous ne pouvez pas déplacer vers la même collection')
+      return
+    }
+
+    setMoving(true)
+    try {
+      await window.api.moveObjects(Array.from(selectedIds), targetCollection.id)
+      setShowMoveModal(false)
+      setSelectedIds(new Set())
+      setEditMode(false)
+      setTargetCollection(null)
+      if (onUpdate) await onUpdate()
+    } catch (error) {
+      console.error('Erreur lors du déplacement:', error)
+      alert('Erreur lors du déplacement des objets')
+    } finally {
+      setMoving(false)
+    }
   }
 
   return (
@@ -326,6 +356,7 @@ export default function ObjectForm({ collection, collections, objects, onCreate,
           {editMode && (
             <>
               <button
+                onClick={() => setShowMoveModal(true)}
                 style={{
                   padding: '10px 20px',
                   background: '#f39c12',
@@ -451,6 +482,97 @@ export default function ObjectForm({ collection, collections, objects, onCreate,
           })}
         </div>
       </div>
+
+      {/* Modal pour déplacer les objets */}
+      {showMoveModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1002
+        }}>
+          <div style={{
+            background: '#fff',
+            padding: 30,
+            borderRadius: 12,
+            boxShadow: '0 10px 40px rgba(0,0,0,0.2)',
+            width: '90%',
+            maxWidth: 400
+          }}>
+            <h2 style={{ marginTop: 0, marginBottom: 20 }}>Déplacer {selectedIds.size} objet(s)</h2>
+            
+            <label style={{ display: 'block', marginBottom: 10, fontWeight: 600, color: '#333' }}>
+              Sélectionnez une collection de destination :
+            </label>
+            <select
+              value={targetCollection?.id || ''}
+              onChange={(e) => {
+                const col = collections.find(c => c.id === parseInt(e.target.value))
+                setTargetCollection(col || null)
+              }}
+              style={{
+                width: '100%',
+                padding: '10px 12px',
+                border: '1px solid #ddd',
+                borderRadius: 6,
+                fontSize: 15,
+                cursor: 'pointer',
+                marginBottom: 20
+              }}
+            >
+              <option value="">-- Sélectionner une collection --</option>
+              {collections.map(c => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
+
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowMoveModal(false)
+                  setTargetCollection(null)
+                }}
+                disabled={moving}
+                style={{
+                  padding: '10px 20px',
+                  background: '#95a5a6',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: 6,
+                  cursor: moving ? 'not-allowed' : 'pointer',
+                  fontWeight: 600
+                }}
+              >
+                Annuler
+              </button>
+              <button
+                type="button"
+                onClick={handleMove}
+                disabled={moving || !targetCollection}
+                style={{
+                  padding: '10px 20px',
+                  background: '#f39c12',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: 6,
+                  cursor: moving || !targetCollection ? 'not-allowed' : 'pointer',
+                  fontWeight: 600,
+                  opacity: moving || !targetCollection ? 0.6 : 1
+                }}
+              >
+                {moving ? 'Déplacement...' : 'Déplacer'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

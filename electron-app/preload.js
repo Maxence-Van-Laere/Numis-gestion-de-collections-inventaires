@@ -16,5 +16,6 @@ contextBridge.exposeInMainWorld('api', {
   listAllObjects: () => req('/objects'),
   createObject: (obj) => req('/objects', { method: 'POST', body: JSON.stringify(obj) }),
   updateObject: (id, obj) => req(`/objects/${id}`, { method: 'PUT', body: JSON.stringify(obj) }),
-  deleteObject: (id) => fetch(API_BASE + `/objects/${id}`, { method: 'DELETE' }).then(r => { if (!r.ok) throw new Error('Delete failed') })
+  deleteObject: (id) => fetch(API_BASE + `/objects/${id}`, { method: 'DELETE' }).then(r => { if (!r.ok) throw new Error('Delete failed') }),
+  moveObjects: (objectIds, targetCollectionId) => req('/objects/move', { method: 'POST', body: JSON.stringify({ objectIds, targetCollectionId }) })
 });
