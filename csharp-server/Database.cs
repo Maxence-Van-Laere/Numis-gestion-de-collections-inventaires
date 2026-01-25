@@ -15,12 +15,8 @@ namespace InventaireCatalogue
 
         static Database() {
 
-            string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                "InventaireCatalogue",
-                "data.db"
-                );
+            string path = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../../../data.db"));
             
-
             Directory.CreateDirectory(Path.GetDirectoryName(path)!);
 
             _db = new LiteDatabase(path);

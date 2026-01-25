@@ -18,10 +18,11 @@ app.MapGet("/", () => Results.Ok(new { message = "C# backend running" }));
 app.MapGet("/debug/stats", () => {
     var catCount = Database.listeCategories.Count();
     var objCount = Database.listeObjets.Count();
+    var dbPath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../../../data.db"));
     return Results.Json(new { 
         categories = catCount, 
         objets = objCount,
-        dbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "InventaireCatalogue", "data.db")
+        dbPath = dbPath
     });
 });
 

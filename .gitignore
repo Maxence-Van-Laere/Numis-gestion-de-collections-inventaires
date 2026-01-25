@@ -8,6 +8,7 @@ csharp-server/obj/
 *.exe
 *.pdb
 .vs/
+csharp-server/uploads/
 
 # Node.js / Electron
 electron-app/node_modules/
