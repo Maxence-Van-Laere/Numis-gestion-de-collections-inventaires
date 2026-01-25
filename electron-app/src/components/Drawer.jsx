@@ -1,17 +1,39 @@
 import React from 'react'
+import { useTheme } from '../contexts/ThemeContext'
 
 export default function Drawer({ currentView, onNavigate, collapsed, onToggleCollapse }) {
+  const { theme } = useTheme()
+
+  const colors = {
+    light: {
+      bg: '#2c3e50',
+      bgHover: '#34495e',
+      text: '#ecf0f1',
+      border: '#34495e',
+      active: '#4a5568'
+    },
+    dark: {
+      bg: '#1a202c',
+      bgHover: '#2d3748',
+      text: '#e2e8f0',
+      border: '#2d3748',
+      active: '#4a5568'
+    }
+  }
+
+  const c = colors[theme]
+  
   const menuItems = [
     { id: 'home', label: 'Home', icon: '🏠' },
     { id: 'collections', label: 'Collections', icon: '📚' },
-    { id: 'utilisateur', label: 'Utilisateur', icon: '👤' }
+    { id: 'preferences', label: 'Préférences', icon: '⚙️' }
   ]
 
   return (
     <div style={{
       width: collapsed ? 70 : 240,
-      background: '#2c3e50',
-      color: '#ecf0f1',
+      background: c.bg,
+      color: c.text,
       height: '100vh',
       display: 'flex',
       flexDirection: 'column',
@@ -20,7 +42,7 @@ export default function Drawer({ currentView, onNavigate, collapsed, onToggleCol
     }}>
       <div style={{
         padding: collapsed ? '15px 10px' : '15px 20px',
-        borderBottom: '1px solid #34495e',
+        borderBottom: `1px solid ${c.border}`,
         display: 'flex',
         alignItems: 'center',
         justifyContent: collapsed ? 'center' : 'space-between',
@@ -38,8 +60,8 @@ export default function Drawer({ currentView, onNavigate, collapsed, onToggleCol
           onClick={onToggleCollapse}
           style={{
             padding: '5px 8px',
-            background: '#34495e',
-            color: '#ecf0f1',
+            background: c.bgHover,
+            color: c.text,
             border: 'none',
             borderRadius: 4,
             cursor: 'pointer',
@@ -51,7 +73,7 @@ export default function Drawer({ currentView, onNavigate, collapsed, onToggleCol
             justifyContent: 'center'
           }}
           onMouseEnter={(e) => e.target.style.background = '#4a5f7f'}
-          onMouseLeave={(e) => e.target.style.background = '#34495e'}
+          onMouseLeave={(e) => e.target.style.background = c.bgHover}
           title={collapsed ? 'Agrandir' : 'Réduire'}
         >
           ☰
@@ -67,10 +89,10 @@ export default function Drawer({ currentView, onNavigate, collapsed, onToggleCol
             style={{
               width: '100%',
               padding: '15px 20px',
-              background: currentView === item.id ? '#34495e' : 'transparent',
-              color: '#ecf0f1',
+              background: currentView === item.id ? c.bgHover : 'transparent',
+              color: c.text,
               border: 'none',
-              borderLeft: currentView === item.id ? '4px solid #3498db' : '4px solid transparent',
+              borderLeft: currentView === item.id ? `4px solid ${c.active}` : '4px solid transparent',
               cursor: 'pointer',
               textAlign: 'left',
               fontSize: 15,
@@ -83,7 +105,7 @@ export default function Drawer({ currentView, onNavigate, collapsed, onToggleCol
             }}
             onMouseEnter={(e) => {
               if (currentView !== item.id) {
-                e.target.style.background = '#34495e50'
+                e.target.style.background = c.bgHover + '50'
               }
             }}
             onMouseLeave={(e) => {
@@ -102,7 +124,7 @@ export default function Drawer({ currentView, onNavigate, collapsed, onToggleCol
         padding: collapsed ? '20px 10px' : 20,
         fontSize: 12,
         color: '#95a5a6',
-        borderTop: '1px solid #34495e',
+        borderTop: `1px solid ${c.border}`,
         textAlign: 'center',
         overflow: 'hidden',
         whiteSpace: 'nowrap'

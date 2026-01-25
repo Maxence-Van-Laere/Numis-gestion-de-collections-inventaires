@@ -1,9 +1,38 @@
 import React, { useEffect, useState } from 'react'
+import { useTheme } from '../contexts/ThemeContext'
 
 export default function ObjectDetails({ object, collections, onClose, onSave }) {
   const [editMode, setEditMode] = useState(false)
   const [form, setForm] = useState({ label: '', cheminPhoto: '', dateProduction: '', dateAcquisition: '', commentaires: '' })
   const [uploading, setUploading] = useState(false)
+  const { theme, isDark } = useTheme()
+
+  const colors = {
+    light: {
+      card: '#fff',
+      text: '#2c3e50',
+      textMuted: '#666',
+      border: '#ddd',
+      input: '#fff',
+      readonlyBg: '#f5f5f5',
+      buttonPrimary: '#4a5568',
+      buttonSuccess: '#48bb78',
+      buttonCancel: '#95a5a6'
+    },
+    dark: {
+      card: '#2d3748',
+      text: '#e2e8f0',
+      textMuted: '#a0aec0',
+      border: '#4a5568',
+      input: '#1a202c',
+      readonlyBg: '#1a202c',
+      buttonPrimary: '#4a5568',
+      buttonSuccess: '#48bb78',
+      buttonCancel: '#718096'
+    }
+  }
+
+  const c = colors[theme]
 
   useEffect(() => {
     if (object) {
@@ -78,7 +107,7 @@ export default function ObjectDetails({ object, collections, onClose, onSave }) 
       zIndex: 1001
     }}>
       <div style={{
-        background: '#fff',
+        background: c.card,
         padding: 30,
         borderRadius: 12,
         boxShadow: '0 10px 40px rgba(0,0,0,0.2)',
@@ -88,7 +117,7 @@ export default function ObjectDetails({ object, collections, onClose, onSave }) 
         overflow: 'auto'
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-          <h2 style={{ marginTop: 0 }}>{editMode ? 'Éditer l\'objet' : object.label}</h2>
+          <h2 style={{ marginTop: 0, color: c.text }}>{editMode ? 'Éditer l\'objet' : object.label}</h2>
           <div style={{ display: 'flex', gap: 10 }}>
             {!editMode && (
               <button
@@ -96,7 +125,7 @@ export default function ObjectDetails({ object, collections, onClose, onSave }) 
                 onClick={() => setEditMode(true)}
                 style={{
                   padding: '8px 14px',
-                  background: '#3498db',
+                  background: c.buttonPrimary,
                   color: '#fff',
                   border: 'none',
                   borderRadius: 6,
@@ -148,22 +177,22 @@ export default function ObjectDetails({ object, collections, onClose, onSave }) 
           gap: 16
         }}>
           <div>
-            <label style={{ display: 'block', fontWeight: 600, color: '#666', marginBottom: 6 }}>Label</label>
+            <label style={{ display: 'block', fontWeight: 600, color: c.textMuted, marginBottom: 6 }}>Label</label>
             {editMode ? (
               <input
                 value={form.label}
                 onChange={(e) => setForm({ ...form, label: e.target.value })}
-                style={{ width: '100%', padding: '10px 12px', border: '1px solid #ddd', borderRadius: 6 }}
+                style={{ width: '100%', padding: '10px 12px', border: `1px solid ${c.border}`, borderRadius: 6, background: c.input, color: c.text }}
               />
             ) : (
-              <div style={{ padding: '10px 12px', background: '#f5f5f5', borderRadius: 6, color: '#333' }}>
+              <div style={{ padding: '10px 12px', background: c.readonlyBg, borderRadius: 6, color: c.text }}>
                 {object.label}
               </div>
             )}
           </div>
 
           <div>
-            <label style={{ display: 'block', fontWeight: 600, color: '#666', marginBottom: 6 }}>Photo</label>
+            <label style={{ display: 'block', fontWeight: 600, color: c.textMuted, marginBottom: 6 }}>Photo</label>
             {editMode ? (
               <div>
                 <input
@@ -174,76 +203,78 @@ export default function ObjectDetails({ object, collections, onClose, onSave }) 
                   style={{ 
                     width: '100%', 
                     padding: '10px 12px', 
-                    border: '1px solid #ddd', 
+                    border: `1px solid ${c.border}`, 
                     borderRadius: 6,
-                    cursor: uploading ? 'not-allowed' : 'pointer'
+                    cursor: uploading ? 'not-allowed' : 'pointer',
+                    background: c.input,
+                    color: c.text
                   }}
                 />
                 {uploading && <div style={{ marginTop: 8, color: '#3498db', fontSize: 14 }}>Upload en cours...</div>}
                 {form.cheminPhoto && (
-                  <div style={{ marginTop: 8, fontSize: 14, color: '#666' }}>
+                  <div style={{ marginTop: 8, fontSize: 14, color: c.textMuted }}>
                     Fichier actuel : {form.cheminPhoto}
                   </div>
                 )}
               </div>
             ) : (
-              <div style={{ padding: '10px 12px', background: '#f5f5f5', borderRadius: 6, color: '#333', wordBreak: 'break-word' }}>
+              <div style={{ padding: '10px 12px', background: c.readonlyBg, borderRadius: 6, color: c.text, wordBreak: 'break-word' }}>
                 {object.cheminPhoto || '—'}
               </div>
             )}
           </div>
 
           <div>
-            <label style={{ display: 'block', fontWeight: 600, color: '#666', marginBottom: 6 }}>Date de production</label>
+            <label style={{ display: 'block', fontWeight: 600, color: c.textMuted, marginBottom: 6 }}>Date de production</label>
             {editMode ? (
               <input
                 type="date"
                 value={form.dateProduction}
                 onChange={(e) => setForm({ ...form, dateProduction: e.target.value })}
-                style={{ width: '100%', padding: '10px 12px', border: '1px solid #ddd', borderRadius: 6 }}
+                style={{ width: '100%', padding: '10px 12px', border: `1px solid ${c.border}`, borderRadius: 6, background: c.input, color: c.text }}
               />
             ) : (
-              <div style={{ padding: '10px 12px', background: '#f5f5f5', borderRadius: 6, color: '#333' }}>
+              <div style={{ padding: '10px 12px', background: c.readonlyBg, borderRadius: 6, color: c.text }}>
                 {object.dateProduction ? new Date(object.dateProduction).toLocaleString() : '—'}
               </div>
             )}
           </div>
 
           <div>
-            <label style={{ display: 'block', fontWeight: 600, color: '#666', marginBottom: 6 }}>Date d'acquisition</label>
+            <label style={{ display: 'block', fontWeight: 600, color: c.textMuted, marginBottom: 6 }}>Date d'acquisition</label>
             {editMode ? (
               <input
                 type="date"
                 value={form.dateAcquisition}
                 onChange={(e) => setForm({ ...form, dateAcquisition: e.target.value })}
-                style={{ width: '100%', padding: '10px 12px', border: '1px solid #ddd', borderRadius: 6 }}
+                style={{ width: '100%', padding: '10px 12px', border: `1px solid ${c.border}`, borderRadius: 6, background: c.input, color: c.text }}
               />
             ) : (
-              <div style={{ padding: '10px 12px', background: '#f5f5f5', borderRadius: 6, color: '#333' }}>
+              <div style={{ padding: '10px 12px', background: c.readonlyBg, borderRadius: 6, color: c.text }}>
                 {object.dateAcquisition ? new Date(object.dateAcquisition).toLocaleString() : '—'}
               </div>
             )}
           </div>
 
           <div>
-            <label style={{ display: 'block', fontWeight: 600, color: '#666', marginBottom: 6 }}>Commentaires</label>
+            <label style={{ display: 'block', fontWeight: 600, color: c.textMuted, marginBottom: 6 }}>Commentaires</label>
             {editMode ? (
               <textarea
                 value={form.commentaires}
                 onChange={(e) => setForm({ ...form, commentaires: e.target.value })}
                 rows={4}
-                style={{ width: '100%', padding: '10px 12px', border: '1px solid #ddd', borderRadius: 6, resize: 'vertical' }}
+                style={{ width: '100%', padding: '10px 12px', border: `1px solid ${c.border}`, borderRadius: 6, resize: 'vertical', background: c.input, color: c.text }}
               />
             ) : (
-              <div style={{ padding: '10px 12px', background: '#f5f5f5', borderRadius: 6, color: '#333', whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>
+              <div style={{ padding: '10px 12px', background: c.readonlyBg, borderRadius: 6, color: c.text, whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>
                 {object.commentaires || '—'}
               </div>
             )}
           </div>
 
           <div>
-            <label style={{ display: 'block', fontWeight: 600, color: '#666', marginBottom: 6 }}>Catégorie</label>
-            <div style={{ padding: '10px 12px', background: '#f5f5f5', borderRadius: 6, color: '#333' }}>
+            <label style={{ display: 'block', fontWeight: 600, color: c.textMuted, marginBottom: 6 }}>Catégorie</label>
+            <div style={{ padding: '10px 12px', background: c.readonlyBg, borderRadius: 6, color: c.text }}>
               {collections?.find(c => c.id === object.categorieId)?.name || 'Pas de catégorie'}
             </div>
           </div>
@@ -266,7 +297,7 @@ export default function ObjectDetails({ object, collections, onClose, onSave }) 
                 }}
                 style={{
                   padding: '10px 20px',
-                  background: '#95a5a6',
+                  background: c.buttonCancel,
                   color: '#fff',
                   border: 'none',
                   borderRadius: 6,
@@ -281,7 +312,7 @@ export default function ObjectDetails({ object, collections, onClose, onSave }) 
                 onClick={handleSave}
                 style={{
                   padding: '10px 20px',
-                  background: '#27ae60',
+                  background: c.buttonSuccess,
                   color: '#fff',
                   border: 'none',
                   borderRadius: 6,
@@ -297,7 +328,7 @@ export default function ObjectDetails({ object, collections, onClose, onSave }) 
               onClick={onClose}
               style={{
                 padding: '10px 20px',
-                background: '#95a5a6',
+                background: c.buttonCancel,
                 color: '#fff',
                 border: 'none',
                 borderRadius: 6,

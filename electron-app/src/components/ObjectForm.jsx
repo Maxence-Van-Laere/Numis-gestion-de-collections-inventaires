@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import ObjectDetails from './ObjectDetails'
+import { useTheme } from '../contexts/ThemeContext'
 
 export default function ObjectForm({ collection, collections, objects, onCreate, onDelete, onUpdate }) {
   const [form, setForm] = useState({ label: '', cheminPhoto: '', commentaires: '', dateAcquisition: '', dateProduction: '' })
@@ -12,6 +13,38 @@ export default function ObjectForm({ collection, collections, objects, onCreate,
   const [showMoveModal, setShowMoveModal] = useState(false)
   const [targetCollection, setTargetCollection] = useState(null)
   const [moving, setMoving] = useState(false)
+  const { theme, isDark } = useTheme()
+
+  const colors = {
+    light: {
+      card: '#fff',
+      text: '#2c3e50',
+      textMuted: '#666',
+      border: '#ddd',
+      input: '#fff',
+      buttonPrimary: '#4a5568',
+      buttonSuccess: '#48bb78',
+      buttonWarning: '#f39c12',
+      buttonDanger: '#e53e3e',
+      selected: '#e8f4f8',
+      selectedBorder: '#4a5568'
+    },
+    dark: {
+      card: '#2d3748',
+      text: '#e2e8f0',
+      textMuted: '#a0aec0',
+      border: '#4a5568',
+      input: '#1a202c',
+      buttonPrimary: '#4a5568',
+      buttonSuccess: '#48bb78',
+      buttonWarning: '#f39c12',
+      buttonDanger: '#e53e3e',
+      selected: '#2c5282',
+      selectedBorder: '#4a5568'
+    }
+  }
+
+  const c = colors[theme]
 
   const getPhotoSrc = (o) => {
     // Utilise le chemin de fichier ou la base64
@@ -146,18 +179,18 @@ export default function ObjectForm({ collection, collections, objects, onCreate,
           zIndex: 1000
         }}>
           <div style={{
-            background: '#fff',
+            background: c.card,
             padding: 30,
             borderRadius: 12,
             boxShadow: '0 10px 40px rgba(0,0,0,0.2)',
             width: '90%',
             maxWidth: 500
           }}>
-            <h2 style={{ marginTop: 0, marginBottom: 20 }}>Ajouter un nouvel objet</h2>
+            <h2 style={{ marginTop: 0, marginBottom: 20, color: c.text }}>Ajouter un nouvel objet</h2>
             
             <form onSubmit={handleSubmit}>
               <div style={{ marginBottom: 16 }}>
-                <label style={{ display: 'block', marginBottom: 6, fontWeight: 600 }}>
+                <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: c.text }}>
                   Label <span style={{ color: '#e74c3c' }}>*</span>
                 </label>
                 <input
@@ -169,16 +202,18 @@ export default function ObjectForm({ collection, collections, objects, onCreate,
                   style={{
                     width: '100%',
                     padding: '10px 12px',
-                    border: '1px solid #ddd',
+                    border: `1px solid ${c.border}`,
                     borderRadius: 6,
                     fontSize: 14,
-                    boxSizing: 'border-box'
+                    boxSizing: 'border-box',
+                    background: c.input,
+                    color: c.text
                   }}
                 />
               </div>
 
               <div style={{ marginBottom: 16 }}>
-                <label style={{ display: 'block', marginBottom: 6, fontWeight: 600 }}>
+                <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: c.text }}>
                   Photo
                 </label>
                 <input
@@ -189,11 +224,13 @@ export default function ObjectForm({ collection, collections, objects, onCreate,
                   style={{
                     width: '100%',
                     padding: '10px 12px',
-                    border: '1px solid #ddd',
+                    border: `1px solid ${c.border}`,
                     borderRadius: 6,
                     fontSize: 14,
                     boxSizing: 'border-box',
-                    cursor: uploading ? 'not-allowed' : 'pointer'
+                    cursor: uploading ? 'not-allowed' : 'pointer',
+                    background: c.input,
+                    color: c.text
                   }}
                 />
                 {uploading && <div style={{ marginTop: 8, color: '#3498db', fontSize: 14 }}>Upload en cours...</div>}
@@ -205,7 +242,7 @@ export default function ObjectForm({ collection, collections, objects, onCreate,
               </div>
 
               <div style={{ marginBottom: 16 }}>
-                <label style={{ display: 'block', marginBottom: 6, fontWeight: 600 }}>
+                <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: c.text }}>
                   Date d'acquisition
                 </label>
                 <input
@@ -215,16 +252,18 @@ export default function ObjectForm({ collection, collections, objects, onCreate,
                   style={{
                     width: '100%',
                     padding: '10px 12px',
-                    border: '1px solid #ddd',
+                    border: `1px solid ${c.border}`,
                     borderRadius: 6,
                     fontSize: 14,
-                    boxSizing: 'border-box'
+                    boxSizing: 'border-box',
+                    background: c.input,
+                    color: c.text
                   }}
                 />
               </div>
 
               <div style={{ marginBottom: 16 }}>
-                <label style={{ display: 'block', marginBottom: 6, fontWeight: 600 }}>
+                <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: c.text }}>
                   Date de production
                 </label>
                 <input
@@ -234,16 +273,18 @@ export default function ObjectForm({ collection, collections, objects, onCreate,
                   style={{
                     width: '100%',
                     padding: '10px 12px',
-                    border: '1px solid #ddd',
+                    border: `1px solid ${c.border}`,
                     borderRadius: 6,
                     fontSize: 14,
-                    boxSizing: 'border-box'
+                    boxSizing: 'border-box',
+                    background: c.input,
+                    color: c.text
                   }}
                 />
               </div>
 
               <div style={{ marginBottom: 20 }}>
-                <label style={{ display: 'block', marginBottom: 6, fontWeight: 600 }}>
+                <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: c.text }}>
                   Commentaires
                 </label>
                 <textarea
@@ -254,11 +295,13 @@ export default function ObjectForm({ collection, collections, objects, onCreate,
                   style={{
                     width: '100%',
                     padding: '10px 12px',
-                    border: '1px solid #ddd',
+                    border: `1px solid ${c.border}`,
                     borderRadius: 6,
                     fontSize: 14,
                     boxSizing: 'border-box',
-                    resize: 'vertical'
+                    resize: 'vertical',
+                    background: c.input,
+                    color: c.text
                   }}
                 />
               </div>
@@ -286,7 +329,7 @@ export default function ObjectForm({ collection, collections, objects, onCreate,
                   type="submit"
                   style={{
                     padding: '10px 20px',
-                    background: '#27ae60',
+                    background: c.buttonSuccess,
                     color: '#fff',
                     border: 'none',
                     borderRadius: 6,
@@ -304,10 +347,10 @@ export default function ObjectForm({ collection, collections, objects, onCreate,
 
       {/* Section recherche et actions */}
       <div style={{ 
-        background: '#fff', 
+        background: c.card, 
         padding: 20, 
         borderRadius: 8, 
-        boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+        boxShadow: isDark ? '0 2px 8px rgba(0,0,0,0.3)' : '0 2px 8px rgba(0,0,0,0.06)',
         marginBottom: 20 
       }}>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
@@ -318,9 +361,11 @@ export default function ObjectForm({ collection, collections, objects, onCreate,
             style={{
               flex: 1,
               padding: '10px 12px',
-              border: '1px solid #ddd',
+              border: `1px solid ${c.border}`,
               borderRadius: 6,
-              fontSize: 14
+              fontSize: 14,
+              background: c.input,
+              color: c.text
             }}
           />
           {!editMode && (
@@ -328,7 +373,7 @@ export default function ObjectForm({ collection, collections, objects, onCreate,
               onClick={() => setShowAddModal(true)}
               style={{
                 padding: '10px 20px',
-                background: '#27ae60',
+                background: c.buttonSuccess,
                 color: '#fff',
                 border: 'none',
                 borderRadius: 6,
@@ -343,7 +388,7 @@ export default function ObjectForm({ collection, collections, objects, onCreate,
             onClick={() => editMode ? cancelEdit() : setEditMode(true)}
             style={{
               padding: '10px 20px',
-              background: editMode ? '#e74c3c' : '#3498db',
+              background: editMode ? c.buttonDanger : c.buttonPrimary,
               color: '#fff',
               border: 'none',
               borderRadius: 6,
@@ -359,7 +404,7 @@ export default function ObjectForm({ collection, collections, objects, onCreate,
                 onClick={() => setShowMoveModal(true)}
                 style={{
                   padding: '10px 20px',
-                  background: '#f39c12',
+                  background: c.buttonWarning,
                   color: '#fff',
                   border: 'none',
                   borderRadius: 6,
@@ -376,7 +421,7 @@ export default function ObjectForm({ collection, collections, objects, onCreate,
                 }}
                 style={{
                   padding: '10px 20px',
-                  background: '#e74c3c',
+                  background: c.buttonDanger,
                   color: '#fff',
                   border: 'none',
                   borderRadius: 6,
@@ -392,7 +437,7 @@ export default function ObjectForm({ collection, collections, objects, onCreate,
       </div>
 
       <div style={{ marginTop: 12 }}>
-        <h4>Objets</h4>
+        <h4 style={{ color: c.text }}>Objets</h4>
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
@@ -413,13 +458,13 @@ export default function ObjectForm({ collection, collections, objects, onCreate,
                   }
                 }}
                 style={{
-                  background: isSelected ? '#e8f4f8' : '#fff',
+                  background: isSelected ? c.selected : c.card,
                   borderRadius: 10,
-                  boxShadow: isSelected ? '0 0 0 3px #3498db' : '0 2px 8px rgba(0,0,0,0.06)',
+                  boxShadow: isSelected ? `0 0 0 3px ${c.selectedBorder}` : (isDark ? '0 2px 8px rgba(0,0,0,0.3)' : '0 2px 8px rgba(0,0,0,0.06)'),
                   overflow: 'hidden',
                   display: 'flex',
                   flexDirection: 'column',
-                  border: isSelected ? '2px solid #3498db' : '1px solid #eee',
+                  border: isSelected ? `2px solid ${c.selectedBorder}` : `1px solid ${c.border}`,
                   cursor: 'pointer',
                   transition: 'all 0.2s'
                 }}>
@@ -457,8 +502,8 @@ export default function ObjectForm({ collection, collections, objects, onCreate,
                   {!photoSrc && (o.label?.[0]?.toUpperCase() || '?')}
                 </div>
                 <div style={{ padding: 12, flex: 1, display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  <div style={{ fontWeight: 700, color: '#2d3436' }}>{o.label}</div>
-                  <div style={{ color: '#636e72', fontSize: 13, lineHeight: 1.4 }}>
+                  <div style={{ fontWeight: 700, color: c.text }}>{o.label}</div>
+                  <div style={{ color: c.textMuted, fontSize: 13, lineHeight: 1.4 }}>
                     {o.dateAcquisition ? new Date(o.dateAcquisition).toLocaleString() : 'Date inconnue'}
                   </div>
                   {!editMode && (

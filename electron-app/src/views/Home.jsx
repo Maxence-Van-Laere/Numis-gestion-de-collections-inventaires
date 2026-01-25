@@ -1,8 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import CollectionList from '../components/CollectionList'
+import { useTheme } from '../contexts/ThemeContext'
 
 export default function Home() {
   const [collections, setCollections] = useState([])
+  const { theme } = useTheme()
+
+  const colors = {
+    light: { text: '#2c3e50' },
+    dark: { text: '#eaeaea' }
+  }
 
   async function loadCollections() {
     try {
@@ -18,7 +25,7 @@ export default function Home() {
 
   return (
     <div style={{ padding: 20 }}>
-      <h1 style={{ marginTop: 0, marginBottom: 20 }}>Tableau de bord - Collections</h1>
+      <h1 style={{ marginTop: 0, marginBottom: 20, color: colors[theme].text }}>Tableau de bord - Collections</h1>
       
       <CollectionList 
         collections={collections} 

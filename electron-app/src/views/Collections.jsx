@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import ObjectForm from '../components/ObjectForm'
 import ObjectDetails from '../components/ObjectDetails'
+import { useTheme } from '../contexts/ThemeContext'
 
 export default function Collections() {
   const [collections, setCollections] = useState([])
@@ -9,6 +10,28 @@ export default function Collections() {
   const [allObjects, setAllObjects] = useState([])
   const [searchText, setSearchText] = useState('')
   const [selectedObject, setSelectedObject] = useState(null)
+  const { theme, isDark } = useTheme()
+
+  const colors = {
+    light: {
+      card: '#fff',
+      text: '#2c3e50',
+      textMuted: '#666',
+      border: '#ddd',
+      input: '#fff',
+      shadow: '0 2px 8px rgba(0,0,0,0.06)'
+    },
+    dark: {
+      card: '#2d3748',
+      text: '#e2e8f0',
+      textMuted: '#a0aec0',
+      border: '#4a5568',
+      input: '#1a202c',
+      shadow: '0 2px 8px rgba(0,0,0,0.3)'
+    }
+  }
+
+  const c = colors[theme]
 
   async function loadCollections() {
     try {
@@ -60,13 +83,13 @@ export default function Collections() {
               key={o.id}
               onClick={() => setSelectedObject(o)}
               style={{
-                background: '#fff',
+                background: c.card,
                 borderRadius: 10,
-                boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                boxShadow: c.shadow,
                 overflow: 'hidden',
                 display: 'flex',
                 flexDirection: 'column',
-                border: '1px solid #eee',
+                border: `1px solid ${c.border}`,
                 cursor: 'pointer',
                 transition: 'all 0.2s'
               }}>
@@ -83,8 +106,8 @@ export default function Collections() {
                 {!photoSrc && (o.label?.[0]?.toUpperCase() || '?')}
               </div>
               <div style={{ padding: 12, flex: 1, display: 'flex', flexDirection: 'column', gap: 6 }}>
-                <div style={{ fontWeight: 700, color: '#2d3436' }}>{o.label}</div>
-                <div style={{ color: '#636e72', fontSize: 13, lineHeight: 1.4 }}>
+                <div style={{ fontWeight: 700, color: c.text }}>{o.label}</div>
+                <div style={{ color: c.textMuted, fontSize: 13, lineHeight: 1.4 }}>
                   {o.dateAcquisition ? new Date(o.dateAcquisition).toLocaleString() : 'Date inconnue'}
                 </div>
                 <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'flex-end' }}>
@@ -122,17 +145,17 @@ export default function Collections() {
         }}
       />
 
-      <h1 style={{ marginTop: 0, marginBottom: 20 }}>Objets de Collection</h1>
+      <h1 style={{ marginTop: 0, marginBottom: 20, color: c.text }}>Objets de Collection</h1>
 
       {/* Sélecteur de collection */}
       <div style={{ 
-        background: '#fff', 
+        background: c.card, 
         padding: 20, 
         borderRadius: 8, 
-        boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+        boxShadow: c.shadow,
         marginBottom: 20
       }}>
-        <label style={{ display: 'block', marginBottom: 10, fontWeight: 600, color: '#333' }}>
+        <label style={{ display: 'block', marginBottom: 10, fontWeight: 600, color: c.text }}>
           Sélectionnez une collection :
         </label>
         <select
@@ -149,10 +172,12 @@ export default function Collections() {
           style={{
             width: '100%',
             padding: '10px 12px',
-            border: '1px solid #ddd',
+            border: `1px solid ${c.border}`,
             borderRadius: 6,
             fontSize: 15,
-            cursor: 'pointer'
+            cursor: 'pointer',
+            background: c.input,
+            color: c.text
           }}
         >
           <option value="">-- Tous les objets --</option>
@@ -182,10 +207,10 @@ export default function Collections() {
         <div>
           {/* Section recherche et actions pour "Tous les objets" */}
           <div style={{ 
-            background: '#fff', 
+            background: c.card, 
             padding: 20, 
             borderRadius: 8, 
-            boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+            boxShadow: c.shadow,
             marginBottom: 20 
           }}>
             <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
@@ -196,15 +221,17 @@ export default function Collections() {
                 style={{
                   flex: 1,
                   padding: '10px 12px',
-                  border: '1px solid #ddd',
+                  border: `1px solid ${c.border}`,
                   borderRadius: 6,
-                  fontSize: 14
+                  fontSize: 14,
+                  background: c.input,
+                  color: c.text
                 }}
               />
             </div>
           </div>
 
-          <h4>Tous les objets</h4>
+          <h4 style={{ color: c.text }}>Tous les objets</h4>
           {renderObjectsGrid(
             allObjects.filter(o => o.label?.toLowerCase().includes(searchText.toLowerCase())),
             async (id) => { 
