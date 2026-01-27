@@ -2,7 +2,8 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 const { spawn } = require('child_process');
 const path = require('path');
 const isDev = require('electron-is-dev');
-const db = require(path.join(__dirname, 'db'));
+// Import explicite du module local pour éviter les résolutions ambiguës en production
+const db = require('./db.js');
 
 let backendProcess = null;
 
@@ -10,8 +11,11 @@ function createWindow() {
   const win = new BrowserWindow({
     width: 1100,
     height: 700,
+    autoHideMenuBar: true,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js')
+      preload: path.join(__dirname, 'preload.js'),
+      nodeIntegration: false,
+      contextIsolation: true
     }
   });
 
@@ -19,7 +23,10 @@ function createWindow() {
     win.loadURL('http://localhost:5173');
     // win.webContents.openDevTools();
   } else {
-    win.loadFile(path.join(__dirname, 'dist', 'index.html'));
+    // En production, charger depuis dist/
+    const indexPath = path.join(__dirname, 'dist', 'index.html');
+    console.log('Production: loading', indexPath);
+    win.loadFile(indexPath);
   }
 }
 
@@ -32,6 +39,13 @@ app.whenReady().then(async () => {
       backendProcess = spawn('dotnet', ['run', '--project', projPath], { stdio: 'inherit' });
     } catch (e) {
       console.warn('Unable to start C# backend automatically:', e.message);
+    }
+  } else {
+    // En production, depuis le dossier resources/
+    try {
+      backendProcess = spawn(path.join(process.resourcesPath, 'backend', 'csharp-server.exe'));
+    } catch (e) {
+      console.warn('Unable to start backend:', e.message);
     }
   }
   createWindow();
@@ -57,3 +71,4 @@ ipcMain.handle('collections:create', async (e, name) => db.createCollection(name
 ipcMain.handle('objects:list', async (e, collectionId) => db.getObjects(collectionId));
 ipcMain.handle('objects:create', async (e, obj) => db.createObject(obj));
 ipcMain.handle('objects:delete', async (e, id) => db.deleteObject(id));
+
