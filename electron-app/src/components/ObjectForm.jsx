@@ -543,16 +543,16 @@ export default function ObjectForm({ collection, collections, objects, onCreate,
           zIndex: 1002
         }}>
           <div style={{
-            background: '#fff',
+            background: c.card,
             padding: 30,
             borderRadius: 12,
             boxShadow: '0 10px 40px rgba(0,0,0,0.2)',
             width: '90%',
             maxWidth: 400
           }}>
-            <h2 style={{ marginTop: 0, marginBottom: 20 }}>Déplacer {selectedIds.size} objet(s)</h2>
+            <h2 style={{ marginTop: 0, marginBottom: 20, color: c.text }}>Déplacer {selectedIds.size} objet(s)</h2>
             
-            <label style={{ display: 'block', marginBottom: 10, fontWeight: 600, color: '#333' }}>
+            <label style={{ display: 'block', marginBottom: 10, fontWeight: 600, color: c.text }}>
               Sélectionnez une collection de destination :
             </label>
             <select
@@ -564,11 +564,13 @@ export default function ObjectForm({ collection, collections, objects, onCreate,
               style={{
                 width: '100%',
                 padding: '10px 12px',
-                border: '1px solid #ddd',
+                border: `1px solid ${c.border}`,
                 borderRadius: 6,
                 fontSize: 15,
                 cursor: 'pointer',
-                marginBottom: 20
+                marginBottom: 20,
+                background: c.input,
+                color: c.text
               }}
             >
               <option value="">-- Sélectionner une collection --</option>
