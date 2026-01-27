@@ -1,6 +1,7 @@
 # C# / .NET
 csharp-server/bin/
 csharp-server/obj/
+csharp-server/publish/
 *.csproj.user
 *.suo
 *.sln.iml
@@ -14,6 +15,8 @@ csharp-server/uploads/
 electron-app/node_modules/
 electron-app/dist/
 electron-app/build/
+electron-app/release/
+electron-app/public/backend/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -42,3 +45,9 @@ logs/
 *.tmp
 *.temp
 *~
+
+#Build
+/electron-app/public
+build-portable.ps1
+DEPLOYMENT.md
+.github/
