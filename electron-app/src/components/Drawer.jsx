@@ -54,7 +54,7 @@ export default function Drawer({ currentView, onNavigate, collapsed, onToggleCol
           overflow: 'hidden',
           whiteSpace: 'nowrap'
         }}>
-          {collapsed ? '' : 'Collections'}
+          {collapsed ? '' : 'Numis'}
         </div>
         <button
           onClick={onToggleCollapse}

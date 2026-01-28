@@ -61,15 +61,15 @@
                               "icon":  "public/icon.ico"
                           },
                   "portable":  {
-                                   "artifactName":  "App-Collections-Portable-${version}.exe"
+                                   "artifactName":  "Numis-Portable-${version}.exe"
                                },
                   "nsis": {
                               "oneClick": false,
                               "allowToChangeInstallationDirectory": true,
                               "createDesktopShortcut": true,
                               "createStartMenuShortcut": true,
-                              "shortcutName": "App Collections",
-                              "artifactName": "App-Collections-Setup-${version}.exe"
+                              "shortcutName": "Numis",
+                              "artifactName": "Numis-Setup-${version}.exe"
                           },
                   "directories":  {
                                       "output":  "release",
