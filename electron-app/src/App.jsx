@@ -5,6 +5,7 @@ import Collections from './views/Collections'
 import Utilisateur from './views/Utilisateur'
 import { useTheme } from './contexts/ThemeContext'
 
+
 export default function App() {
   const [currentView, setCurrentView] = useState('home')
   const [drawerCollapsed, setDrawerCollapsed] = useState(false)

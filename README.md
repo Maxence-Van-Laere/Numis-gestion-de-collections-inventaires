@@ -1,4 +1,4 @@
-# App Collections
+# Numis
 
 ## Guide Téléchargement et utilisation
 

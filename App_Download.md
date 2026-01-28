@@ -3,17 +3,17 @@
 ## Installation
 
 ### Application Portable (Recommandée)
-1. Téléchargez le fichier `App-Collections-Portable-X.X.X.exe`
+1. Téléchargez le fichier `Numis-Portable-X.X.X.exe`
 2. Double-cliquez sur l'exécutable pour lancer l'application
 3. Aucune installation n'est requise !
 
 
 ### Installation via Installeur (Setup)
-1. Téléchargez le fichier `App-Collections-Setup-X.X.X.exe`
+1. Téléchargez le fichier `Numis-Setup-X.X.X.exe`
 2. Double-cliquez pour lancer l'installeur
 3. Suivez les étapes de l'assistant d'installation:
    - Acceptez la licence
-   - Choisissez le dossier d'installation (par défaut: `C:\Program Files\App Collections`)
+   - Choisissez le dossier d'installation (par défaut: `C:\Program Files\Numis`)
    - L'application crée automatiquement des raccourcis sur le Bureau et dans le menu Démarrage
 4. Cliquez sur "Terminer"
 5. Lancez l'application depuis le raccourci créé ou le menu Démarrer
