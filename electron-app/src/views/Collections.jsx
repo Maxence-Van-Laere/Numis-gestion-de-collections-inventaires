@@ -3,9 +3,9 @@ import ObjectForm from '../components/ObjectForm'
 import ObjectDetails from '../components/ObjectDetails'
 import { useTheme } from '../contexts/ThemeContext'
 
-export default function Collections() {
+export default function Collections({ selectedCollection }) {
   const [collections, setCollections] = useState([])
-  const [selected, setSelected] = useState(null)
+  const [selected, setSelected] = useState(selectedCollection || null)
   const [objects, setObjects] = useState([])
   const [allObjects, setAllObjects] = useState([])
   const [searchText, setSearchText] = useState('')
@@ -59,6 +59,11 @@ export default function Collections() {
   }
 
   useEffect(() => { loadCollections() }, [])
+  useEffect(() => { 
+    if (selectedCollection) {
+      selectCollection(selectedCollection)
+    }
+  }, [selectedCollection])
   useEffect(() => { if (!selected) loadAllObjects() }, [selected])
 
   const getPhotoSrc = (o) => {

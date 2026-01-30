@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import CollectionList from '../components/CollectionList'
 import { useTheme } from '../contexts/ThemeContext'
 
-export default function Home() {
+export default function Home({ onSelectCollection }) {
   const [collections, setCollections] = useState([])
   const { theme } = useTheme()
 
@@ -34,8 +34,9 @@ export default function Home() {
           await loadCollections(); 
         }} 
         onSelect={(c) => {
-          // Navigation vers la page Collections sera gérée plus tard
-          console.log('Collection sélectionnée:', c)
+          if (onSelectCollection) {
+            onSelectCollection(c)
+          }
         }}
         onDelete={async (id) => { 
           if (window.confirm('Êtes-vous sûr de vouloir supprimer cette collection ?')) {

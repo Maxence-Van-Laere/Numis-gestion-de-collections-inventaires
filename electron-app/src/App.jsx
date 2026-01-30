@@ -9,6 +9,7 @@ import { useTheme } from './contexts/ThemeContext'
 export default function App() {
   const [currentView, setCurrentView] = useState('home')
   const [drawerCollapsed, setDrawerCollapsed] = useState(false)
+  const [selectedCollection, setSelectedCollection] = useState(null)
   const { theme } = useTheme()
 
   const colors = {
@@ -27,13 +28,19 @@ export default function App() {
   function renderView() {
     switch (currentView) {
       case 'home':
-        return <Home />
+        return <Home onSelectCollection={(collection) => { 
+          setSelectedCollection(collection)
+          setCurrentView('collections')
+        }} />
       case 'collections':
-        return <Collections />
+        return <Collections selectedCollection={selectedCollection} />
       case 'preferences':
         return <Utilisateur />
       default:
-        return <Home />
+        return <Home onSelectCollection={(collection) => { 
+          setSelectedCollection(collection)
+          setCurrentView('collections')
+        }} />
     }
   }
 
