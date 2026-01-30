@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const { spawn } = require('child_process');
 const path = require('path');
 const isDev = require('electron-is-dev');
@@ -43,9 +43,24 @@ app.whenReady().then(async () => {
   } else {
     // En production, depuis le dossier resources/
     try {
-      backendProcess = spawn(path.join(process.resourcesPath, 'backend', 'csharp-server.exe'));
+      const backendPath = path.join(process.resourcesPath, 'backend', 'csharp-server.exe');
+      const backendCwd = path.dirname(backendPath);
+      backendProcess = spawn(backendPath, [], {
+        cwd: backendCwd,
+        windowsHide: true
+      });
+      backendProcess.on('error', (e) => {
+        console.warn('Unable to start backend:', e.message);
+        dialog.showErrorBox('Backend error', `Impossible de démarrer le backend.\n${e.message}`);
+      });
+      backendProcess.on('exit', (code) => {
+        if (code && code !== 0) {
+          console.warn('Backend exited with code:', code);
+        }
+      });
     } catch (e) {
       console.warn('Unable to start backend:', e.message);
+      dialog.showErrorBox('Backend error', `Impossible de démarrer le backend.\n${e.message}`);
     }
   }
   createWindow();

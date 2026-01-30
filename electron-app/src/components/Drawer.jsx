@@ -129,7 +129,7 @@ export default function Drawer({ currentView, onNavigate, collapsed, onToggleCol
         overflow: 'hidden',
         whiteSpace: 'nowrap'
       }}>
-        {collapsed ? 'v1' : 'v1.0.1'}
+        {collapsed ? 'v1' : 'v1.0.0'}
       </div>
     </div>
   )
