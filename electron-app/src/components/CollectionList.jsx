@@ -3,6 +3,8 @@ import { useTheme } from '../contexts/ThemeContext'
 
 export default function CollectionList({ collections, onCreate, onSelect, onDelete }) {
   const [name, setName] = useState('')
+  const [sortBy, setSortBy] = useState('created_at')
+  const [sortOrder, setSortOrder] = useState('desc')
   const { theme, isDark } = useTheme()
 
   const colors = {
@@ -37,6 +39,49 @@ export default function CollectionList({ collections, onCreate, onSelect, onDele
   function fmt(dateStr) {
     if (!dateStr) return '-'
     try { return new Date(dateStr).toLocaleString() } catch (e) { return dateStr }
+  }
+
+  function getSortedCollections() {
+    const sorted = [...collections]
+    sorted.sort((a, b) => {
+      let aVal = a[sortBy]
+      let bVal = b[sortBy]
+
+      if (sortBy === 'name') {
+        aVal = (aVal || '').toLowerCase()
+        bVal = (bVal || '').toLowerCase()
+        return sortOrder === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal)
+      }
+
+      if (sortBy === 'count') {
+        aVal = a.count || 0
+        bVal = b.count || 0
+        return sortOrder === 'asc' ? aVal - bVal : bVal - aVal
+      }
+
+      if (sortBy === 'created_at' || sortBy === 'updated_at') {
+        aVal = new Date(aVal || 0).getTime()
+        bVal = new Date(bVal || 0).getTime()
+        return sortOrder === 'asc' ? aVal - bVal : bVal - aVal
+      }
+
+      return 0
+    })
+    return sorted
+  }
+
+  function handleColumnSort(column) {
+    if (sortBy === column) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortBy(column)
+      setSortOrder('asc')
+    }
+  }
+
+  function getSortIndicator(column) {
+    if (sortBy !== column) return ' ↑↓'
+    return sortOrder === 'asc' ? ' ↑' : ' ↓'
   }
 
   return (
@@ -74,18 +119,38 @@ export default function CollectionList({ collections, onCreate, onSelect, onDele
       </div>
 
       <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0 }}>
+        <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0, tableLayout: 'fixed' }}>
           <thead>
             <tr style={{ background: c.tableHeader }}>
-              <th style={{ textAlign: 'left', padding: '10px 12px', fontSize: 13, color: c.text }}>Nom</th>
-              <th style={{ textAlign: 'right', padding: '10px 12px', fontSize: 13, color: c.text }}>Nb éléments</th>
-              <th style={{ textAlign: 'left', padding: '10px 12px', fontSize: 13, color: c.text }}>Date création</th>
-              <th style={{ textAlign: 'left', padding: '10px 12px', fontSize: 13, color: c.text }}>Dernière modification</th>
-              <th style={{ textAlign: 'center', padding: '10px 12px', fontSize: 13, color: c.text }}>Actions</th>
+              <th 
+                onClick={() => handleColumnSort('name')}
+                style={{ textAlign: 'left', padding: '10px 12px', fontSize: 13, color: c.text, cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap' }}
+              >
+                Nom{getSortIndicator('name')}
+              </th>
+              <th 
+                onClick={() => handleColumnSort('count')}
+                style={{ textAlign: 'right', padding: '10px 12px', fontSize: 13, color: c.text, cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap' }}
+              >
+                Nb éléments{getSortIndicator('count')}
+              </th>
+              <th 
+                onClick={() => handleColumnSort('created_at')}
+                style={{ textAlign: 'left', padding: '10px 12px', fontSize: 13, color: c.text, cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap' }}
+              >
+                Date création{getSortIndicator('created_at')}
+              </th>
+              <th 
+                onClick={() => handleColumnSort('updated_at')}
+                style={{ textAlign: 'left', padding: '10px 12px', fontSize: 13, color: c.text, cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap' }}
+              >
+                Dernière modification{getSortIndicator('updated_at')}
+              </th>
+              <th style={{ textAlign: 'center', padding: '10px 12px', fontSize: 13, color: c.text, whiteSpace: 'nowrap' }}>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {collections.map((col, i) => (
+            {getSortedCollections().map((col, i) => (
               <tr key={col.id} style={{ background: i % 2 === 0 ? c.card : c.tableRow, borderTop: `1px solid ${c.border}` }}>
                 <td style={{ padding: '10px 12px' }}>
                   <button onClick={() => onSelect(col)} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: c.link, fontWeight: 600 }}>{col.name}</button>

@@ -10,6 +10,8 @@ export default function Collections({ selectedCollection }) {
   const [allObjects, setAllObjects] = useState([])
   const [searchText, setSearchText] = useState('')
   const [selectedObject, setSelectedObject] = useState(null)
+  const [sortBy, setSortBy] = useState('dateAcquisition')
+  const [sortOrder, setSortOrder] = useState('desc')
   const { theme, isDark } = useTheme()
 
   const colors = {
@@ -71,6 +73,38 @@ export default function Collections({ selectedCollection }) {
     if (o.photoBase64) return `data:image/png;base64,${o.photoBase64}`
     if (o.photo) return o.photo
     return null
+  }
+
+  function getSortedObjects(list) {
+    const sorted = [...list]
+    sorted.sort((a, b) => {
+      let aVal = a[sortBy]
+      let bVal = b[sortBy]
+
+      if (sortBy === 'label') {
+        aVal = (aVal || '').toLowerCase()
+        bVal = (bVal || '').toLowerCase()
+        return sortOrder === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal)
+      }
+
+      if (sortBy === 'dateAcquisition' || sortBy === 'dateProduction') {
+        aVal = new Date(aVal || 0).getTime()
+        bVal = new Date(bVal || 0).getTime()
+        return sortOrder === 'asc' ? aVal - bVal : bVal - aVal
+      }
+
+      return 0
+    })
+    return sorted
+  }
+
+  function handleSortChange(column) {
+    if (sortBy === column) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortBy(column)
+      setSortOrder('asc')
+    }
   }
 
   function renderObjectsGrid(list, onDelete) {
@@ -218,13 +252,13 @@ export default function Collections({ selectedCollection }) {
             boxShadow: c.shadow,
             marginBottom: 20 
           }}>
-            <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
               <input
                 placeholder="🔍 Rechercher un objet..."
                 value={searchText}
                 onChange={e => setSearchText(e.target.value)}
                 style={{
-                  flex: 1,
+                  flex: '0 1 300px',
                   padding: '10px 12px',
                   border: `1px solid ${c.border}`,
                   borderRadius: 6,
@@ -233,12 +267,53 @@ export default function Collections({ selectedCollection }) {
                   color: c.text
                 }}
               />
+              <div style={{ display: 'flex', gap: 10, alignItems: 'center', whiteSpace: 'nowrap' }}>
+                <label style={{ color: c.text, fontSize: 13, fontWeight: 600 }}>Trier par :</label>
+                <select
+                  value={sortBy}
+                  onChange={(e) => {
+                    setSortBy(e.target.value)
+                    setSortOrder('asc')
+                  }}
+                  style={{
+                    padding: '8px 10px',
+                    border: `1px solid ${c.border}`,
+                    borderRadius: 6,
+                    fontSize: 13,
+                    cursor: 'pointer',
+                    background: c.input,
+                    color: c.text,
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  <option value="label">Nom</option>
+                  <option value="dateAcquisition">Date d'acquisition</option>
+                  <option value="dateProduction">Date de production</option>
+                </select>
+                <button
+                  onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                  style={{
+                    padding: '8px 12px',
+                    border: `1px solid ${c.border}`,
+                    borderRadius: 6,
+                    background: c.input,
+                    color: c.text,
+                    cursor: 'pointer',
+                    fontSize: 13,
+                    fontWeight: 600,
+                    minWidth: '100px',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  {sortOrder === 'asc' ? '↑ Croissant' : '↓ Décroissant'}
+                </button>
+              </div>
             </div>
           </div>
 
           <h4 style={{ color: c.text }}>Tous les objets</h4>
           {renderObjectsGrid(
-            allObjects.filter(o => o.label?.toLowerCase().includes(searchText.toLowerCase())),
+            getSortedObjects(allObjects.filter(o => o.label?.toLowerCase().includes(searchText.toLowerCase()))),
             async (id) => { 
               await window.api.deleteObject(id); 
               loadAllObjects(); 

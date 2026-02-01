@@ -13,6 +13,8 @@ export default function ObjectForm({ collection, collections, objects, onCreate,
   const [showMoveModal, setShowMoveModal] = useState(false)
   const [targetCollection, setTargetCollection] = useState(null)
   const [moving, setMoving] = useState(false)
+  const [sortBy, setSortBy] = useState('dateAcquisition')
+  const [sortOrder, setSortOrder] = useState('desc')
   const { theme, isDark } = useTheme()
 
   const colors = {
@@ -54,8 +56,31 @@ export default function ObjectForm({ collection, collections, objects, onCreate,
     return null
   }
 
-  const filteredObjects = objects.filter(o => 
-    o.label?.toLowerCase().includes(searchText.toLowerCase())
+  const getSortedObjects = (list) => {
+    const sorted = [...list]
+    sorted.sort((a, b) => {
+      let aVal = a[sortBy]
+      let bVal = b[sortBy]
+
+      if (sortBy === 'label') {
+        aVal = (aVal || '').toLowerCase()
+        bVal = (bVal || '').toLowerCase()
+        return sortOrder === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal)
+      }
+
+      if (sortBy === 'dateAcquisition' || sortBy === 'dateProduction') {
+        aVal = new Date(aVal || 0).getTime()
+        bVal = new Date(bVal || 0).getTime()
+        return sortOrder === 'asc' ? aVal - bVal : bVal - aVal
+      }
+
+      return 0
+    })
+    return sorted
+  }
+
+  const filteredObjects = getSortedObjects(
+    objects.filter(o => o.label?.toLowerCase().includes(searchText.toLowerCase()))
   )
 
   const toggleSelect = (id) => {
@@ -353,13 +378,13 @@ export default function ObjectForm({ collection, collections, objects, onCreate,
         boxShadow: isDark ? '0 2px 8px rgba(0,0,0,0.3)' : '0 2px 8px rgba(0,0,0,0.06)',
         marginBottom: 20 
       }}>
-        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
           <input
             placeholder="🔍 Rechercher un objet..."
             value={searchText}
             onChange={e => setSearchText(e.target.value)}
             style={{
-              flex: 1,
+              flex: '0 1 250px',
               padding: '10px 12px',
               border: `1px solid ${c.border}`,
               borderRadius: 6,
@@ -368,6 +393,47 @@ export default function ObjectForm({ collection, collections, objects, onCreate,
               color: c.text
             }}
           />
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center', whiteSpace: 'nowrap' }}>
+            <label style={{ color: c.text, fontSize: 13, fontWeight: 600 }}>Trier par :</label>
+            <select
+              value={sortBy}
+              onChange={(e) => {
+                setSortBy(e.target.value)
+                setSortOrder('asc')
+              }}
+              style={{
+                padding: '8px 10px',
+                border: `1px solid ${c.border}`,
+                borderRadius: 6,
+                fontSize: 13,
+                cursor: 'pointer',
+                background: c.input,
+                color: c.text,
+                whiteSpace: 'nowrap'
+              }}
+            >
+              <option value="label">Nom</option>
+              <option value="dateAcquisition">Date d'acquisition</option>
+              <option value="dateProduction">Date de production</option>
+            </select>
+            <button
+              onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+              style={{
+                padding: '8px 12px',
+                border: `1px solid ${c.border}`,
+                borderRadius: 6,
+                background: c.input,
+                color: c.text,
+                cursor: 'pointer',
+                fontSize: 13,
+                fontWeight: 600,
+                minWidth: '100px',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              {sortOrder === 'asc' ? '↑ Croissant' : '↓ Décroissant'}
+            </button>
+          </div>
           {!editMode && (
             <button
               onClick={() => setShowAddModal(true)}
@@ -378,7 +444,8 @@ export default function ObjectForm({ collection, collections, objects, onCreate,
                 border: 'none',
                 borderRadius: 6,
                 cursor: 'pointer',
-                fontWeight: 600
+                fontWeight: 600,
+                whiteSpace: 'nowrap'
               }}
             >
               Ajouter
@@ -393,7 +460,8 @@ export default function ObjectForm({ collection, collections, objects, onCreate,
               border: 'none',
               borderRadius: 6,
               cursor: 'pointer',
-              fontWeight: 600
+              fontWeight: 600,
+              whiteSpace: 'nowrap'
             }}
           >
             {editMode ? 'Annuler' : 'Modifier'}
