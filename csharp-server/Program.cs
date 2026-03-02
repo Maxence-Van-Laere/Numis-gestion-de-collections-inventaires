@@ -73,7 +73,8 @@ app.MapGet("/collections/{id:int}/objects", (int id) => {
         cheminPhoto = o.CheminPhoto,
         dateProduction = o.DateProduction?.ToString("o", CultureInfo.InvariantCulture) ?? "",
         dateAcquisition = o.DateAcquisition?.ToString("o", CultureInfo.InvariantCulture) ?? "",
-        commentaires = o.Commentaires
+        commentaires = o.Commentaires,
+        lieuAcquisition = o.LieuAcquisition
     });
     return Results.Json(list);
 });
@@ -90,7 +91,8 @@ app.MapGet("/objects", () => {
         cheminPhoto = o.CheminPhoto,
         dateProduction = o.DateProduction?.ToString("o", CultureInfo.InvariantCulture) ?? "",
         dateAcquisition = o.DateAcquisition?.ToString("o", CultureInfo.InvariantCulture) ?? "",
-        commentaires = o.Commentaires
+        commentaires = o.Commentaires,
+        lieuAcquisition = o.LieuAcquisition
     });
     return Results.Json(list);
 });
@@ -101,7 +103,8 @@ app.MapPost("/objects", (CreateObjectDto dto) => {
                                    cheminPhoto: dto.cheminPhoto,
                                    dateProduction: dto.dateProduction,
                                    dateAcquisition: dto.dateAcquisition,
-                                   commentaires: dto.commentaires);
+                                   commentaires: dto.commentaires,
+                                   lieuAcquisition: dto.lieuAcquisition);
     Database.listeObjets.Insert(obj);
     Console.WriteLine($"[DEBUG] -> Objet créé avec ID: {obj.IdObjet}");
 
@@ -135,7 +138,7 @@ app.MapPut("/objects/{id:int}", (int id, UpdateObjectDto dto) => {
     obj.DateProduction = dto.dateProduction ?? obj.DateProduction;
     obj.DateAcquisition = dto.dateAcquisition ?? obj.DateAcquisition;
     obj.Commentaires = dto.commentaires ?? obj.Commentaires;
-
+    obj.LieuAcquisition = dto.lieuAcquisition ?? obj.LieuAcquisition;
     Database.listeObjets.Update(obj);
     var cat = Database.listeCategories.FindById(obj.CategorieId);
     if (cat != null)
@@ -152,7 +155,8 @@ app.MapPut("/objects/{id:int}", (int id, UpdateObjectDto dto) => {
         cheminPhoto = obj.CheminPhoto,
         dateProduction = obj.DateProduction?.ToString("o", CultureInfo.InvariantCulture) ?? "",
         dateAcquisition = obj.DateAcquisition?.ToString("o", CultureInfo.InvariantCulture) ?? "",
-        commentaires = obj.Commentaires
+        commentaires = obj.Commentaires,
+        lieuAcquisition = obj.LieuAcquisition 
     });
 });
 
@@ -248,6 +252,6 @@ app.MapPost("/objects/move", (MoveObjectsDto dto) => {
 app.Run();
 
 public record CreateCollectionDto(string name);
-public record CreateObjectDto(int collectionId, string label, string? cheminPhoto, DateTime? dateProduction, DateTime? dateAcquisition, string? commentaires);
-public record UpdateObjectDto(string? label, string? cheminPhoto, DateTime? dateProduction, DateTime? dateAcquisition, string? commentaires);
+public record CreateObjectDto(int collectionId, string label, string? cheminPhoto, DateTime? dateProduction, DateTime? dateAcquisition, string? commentaires, string? lieuAcquisition);
+public record UpdateObjectDto(string? label, string? cheminPhoto, DateTime? dateProduction, DateTime? dateAcquisition, string? commentaires, string? lieuAcquisition);
 public record MoveObjectsDto(List<int> objectIds, int targetCollectionId);

@@ -1,79 +1,87 @@
 {
-    "name":  "numis",
-    "version":  "1.0.0",
-    "private":  true,
-    "main":  "main.js",
-    "scripts":  {
-                    "dev:ui":  "vite",
-                    "dev:electron":  "electron .",
-                    "dev":  "concurrently \"vite\" \"wait-on http://localhost:5173 \u0026\u0026 electron .\"",
-                    "build":  "vite build \u0026\u0026 electron-builder",
-                    "dist":  "vite build \u0026\u0026 electron-builder --publish never",
-                    "start":  "electron .",
-                    "build-exe":  "npm run build \u0026\u0026 electron-builder --win --publish never",
-                    "build-portable":  "npm run build \u0026\u0026 electron-builder --win portable -p never",
-                    "build-installer": "npm run build \u0026\u0026 electron-builder --win nsis -p never"
+    "name": "numis",
+    "version": "1.0.0",
+    "private": true,
+    "main": "main.js",
+    "scripts": {
+        "dev:ui": "vite",
+        "dev:electron": "electron .",
+        "dev": "concurrently \"vite\" \"wait-on http://localhost:5173 && electron .\"",
+        "build": "vite build && electron-builder",
+        "dist": "vite build && electron-builder --publish never",
+        "start": "electron .",
+        "build-exe": "npm run build && electron-builder --win --publish never",
+        "build-portable": "npm run build && electron-builder --win portable -p never",
+        "build-installer": "npm run build && electron-builder --win nsis -p never"
+    },
+    "dependencies": {
+        "electron-is-dev": "^2.0.0",
+        "leaflet": "^1.9.4",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
+        "react-leaflet": "^4.2.1",
+        "sql.js": "^1.8.0"
+    },
+    "devDependencies": {
+        "@vitejs/plugin-react": "^4.7.0",
+        "concurrently": "^8.0.0",
+        "electron": "^40.0.0",
+        "electron-builder": "^25.1.8",
+        "vite": "^6.4.1",
+        "wait-on": "^7.0.0"
+    },
+    "build": {
+        "appId": "com.numis.app",
+        "productName": "Numis",
+        "asar": false,
+        "files": [
+            "dist/**/*",
+            "!dist/backend/**",
+            "main.js",
+            "preload.js",
+            "db.js",
+            "package.json"
+        ],
+        "extraResources": [
+            {
+                "from": "public/backend",
+                "to": "backend",
+                "filter": [
+                    "**/*"
+                ]
+            }
+        ],
+        "win": {
+            "target": [
+                {
+                    "target": "portable",
+                    "arch": [
+                        "x64"
+                    ]
                 },
-    "dependencies":  {
-                         "electron-is-dev":  "^2.0.0",
-                         "react":  "^18.2.0",
-                         "react-dom":  "^18.2.0",
-                         "sql.js":  "^1.8.0"
-                     },
-    "devDependencies":  {
-                            "@vitejs/plugin-react":  "^4.7.0",
-                            "concurrently":  "^8.0.0",
-                            "electron":  "^40.0.0",
-                            "electron-builder":  "^25.1.8",
-                            "vite":  "^6.4.1",
-                            "wait-on":  "^7.0.0"
-                        },
-    "build":  {
-                  "appId":  "com.numis.app",
-                  "productName":  "Numis",
-                  "asar":  false,
-                  "files":  [
-                                "dist/**/*",
-                                "!dist/backend/**",
-                                "main.js",
-                                "preload.js",
-                                "db.js",
-                                "package.json"
-                            ],
-                  "extraResources":  [
-                                         {
-                                             "from":  "public/backend",
-                                             "to":  "backend",
-                                             "filter":  ["**/*"]
-                                         }
-                                     ],
-                  "win":  {
-                              "target":  [
-                                             {
-                                                 "target":  "portable",
-                                                 "arch":  ["x64"]
-                                             },
-                                             {
-                                                 "target":  "nsis",
-                                                 "arch":  ["x64"]
-                                             }
-                                         ],
-                              "icon":  "public/icon.ico"
-                          },
-                  "portable":  {
-                                   "artifactName":  "Numis-Portable-${version}.exe"
-                               },
-                  "nsis": {
-                              "oneClick": false,
-                              "allowToChangeInstallationDirectory": true,
-                              "createDesktopShortcut": true,
-                              "createStartMenuShortcut": true,
-                              "shortcutName": "Numis",
-                              "artifactName": "Numis-Setup-${version}.exe"
-                          },
-                  "directories":  {
-                                      "output":  "release",
-                                      "buildResources":  "public"
-                                  }
-              }
+                {
+                    "target": "nsis",
+                    "arch": [
+                        "x64"
+                    ]
+                }
+            ],
+            "icon": "public/icon.ico"
+        },
+        "portable": {
+            "artifactName": "Numis-Portable-${version}.exe"
+        },
+        "nsis": {
+            "oneClick": false,
+            "allowToChangeInstallationDirectory": true,
+            "createDesktopShortcut": true,
+            "createStartMenuShortcut": true,
+            "shortcutName": "Numis",
+            "artifactName": "Numis-Setup-${version}.exe"
+        },
+        "directories": {
+            "output": "release",
+            "buildResources": "public"
+        }
+    }
 }

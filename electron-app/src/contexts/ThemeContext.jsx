@@ -21,6 +21,11 @@ export function ThemeProvider({ children }) {
     localStorage.setItem('app-theme', theme)
     // Appliquer le thème au document
     document.documentElement.setAttribute('data-theme', theme)
+
+    const bodyBackground = theme === 'dark' ? '#1a202c' : '#f5f6fa'
+    const bodyText = theme === 'dark' ? '#e2e8f0' : '#2c3e50'
+    document.body.style.backgroundColor = bodyBackground
+    document.body.style.color = bodyText
   }, [theme])
 
   const toggleTheme = () => {

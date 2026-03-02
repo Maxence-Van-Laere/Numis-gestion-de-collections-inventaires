@@ -3,7 +3,7 @@ import ObjectDetails from './ObjectDetails'
 import { useTheme } from '../contexts/ThemeContext'
 
 export default function ObjectForm({ collection, collections, objects, onCreate, onDelete, onUpdate }) {
-  const [form, setForm] = useState({ label: '', cheminPhoto: '', commentaires: '', dateAcquisition: '', dateProduction: '' })
+  const [form, setForm] = useState({ label: '', cheminPhoto: '', commentaires: '', dateAcquisition: '', dateProduction: '', lieuAcquisition: '' })
   const [searchText, setSearchText] = useState('')
   const [editMode, setEditMode] = useState(false)
   const [showAddModal, setShowAddModal] = useState(false)
@@ -15,7 +15,7 @@ export default function ObjectForm({ collection, collections, objects, onCreate,
   const [moving, setMoving] = useState(false)
   const [sortBy, setSortBy] = useState('dateAcquisition')
   const [sortOrder, setSortOrder] = useState('desc')
-  const { theme, isDark } = useTheme()
+  const {theme, isDark } = useTheme()
 
   const colors = {
     light: {
@@ -139,12 +139,13 @@ export default function ObjectForm({ collection, collections, objects, onCreate,
       label: form.label,
       cheminPhoto: form.cheminPhoto || null,
       commentaires: form.commentaires || null,
+      lieuAcquisition: form.lieuAcquisition?.trim() || null,
       dateAcquisition: form.dateAcquisition ? new Date(form.dateAcquisition).toISOString() : null,
       dateProduction: form.dateProduction ? new Date(form.dateProduction).toISOString() : null
     }
     
     await onCreate(newObject)
-    setForm({ label: '', cheminPhoto: '', commentaires: '', dateAcquisition: '', dateProduction: '' })
+    setForm({ label: '', cheminPhoto: '', commentaires: '', dateAcquisition: '', dateProduction: '', lieuAcquisition: '' })
     setShowAddModal(false)
   }
 
@@ -331,12 +332,34 @@ export default function ObjectForm({ collection, collections, objects, onCreate,
                 />
               </div>
 
+              <div style={{ marginBottom: 20 }}>
+                <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: c.text }}>
+                  Lieu d'acquisition (ville)
+                </label>
+                <input
+                  type="text"
+                  value={form.lieuAcquisition}
+                  onChange={(e) => setForm({ ...form, lieuAcquisition: e.target.value })}
+                  placeholder="Ex: Paris"
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: `1px solid ${c.border}`,
+                    borderRadius: 6,
+                    fontSize: 14,
+                    boxSizing: 'border-box',
+                    background: c.input,
+                    color: c.text
+                  }}
+                />
+              </div>
+
               <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
                 <button
                   type="button"
                   onClick={() => {
                     setShowAddModal(false)
-                    setForm({ label: '', cheminPhoto: '', commentaires: '', dateAcquisition: '', dateProduction: '' })
+                    setForm({ label: '', cheminPhoto: '', commentaires: '', dateAcquisition: '', dateProduction: '', lieuAcquisition: '' })
                   }}
                   style={{
                     padding: '10px 20px',

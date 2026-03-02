@@ -26,6 +26,7 @@ export default function Drawer({ currentView, onNavigate, collapsed, onToggleCol
   const menuItems = [
     { id: 'home', label: 'Home', icon: '🏠' },
     { id: 'collections', label: 'Collections', icon: '📚' },
+    { id: 'carte', label: 'Carte', icon: '🗺️' },
     { id: 'preferences', label: 'Préférences', icon: '⚙️' }
   ]
 
@@ -129,7 +130,7 @@ export default function Drawer({ currentView, onNavigate, collapsed, onToggleCol
         overflow: 'hidden',
         whiteSpace: 'nowrap'
       }}>
-        {collapsed ? 'v1' : 'v1.0.0'}
+        {collapsed ? 'v1' : 'v1.2.0'}
       </div>
     </div>
   )

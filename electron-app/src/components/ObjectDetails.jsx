@@ -3,7 +3,7 @@ import { useTheme } from '../contexts/ThemeContext'
 
 export default function ObjectDetails({ object, collections, onClose, onSave }) {
   const [editMode, setEditMode] = useState(false)
-  const [form, setForm] = useState({ label: '', cheminPhoto: '', dateProduction: '', dateAcquisition: '', commentaires: '' })
+  const [form, setForm] = useState({ label: '', cheminPhoto: '', dateProduction: '', dateAcquisition: '', lieuAcquisition: '', commentaires: '' })
   const [uploading, setUploading] = useState(false)
   const { theme, isDark } = useTheme()
 
@@ -41,6 +41,7 @@ export default function ObjectDetails({ object, collections, onClose, onSave }) 
         cheminPhoto: object.cheminPhoto || '',
         dateProduction: object.dateProduction ? object.dateProduction.substring(0, 10) : '',
         dateAcquisition: object.dateAcquisition ? object.dateAcquisition.substring(0, 10) : '',
+        lieuAcquisition: object.lieuAcquisition || '',
         commentaires: object.commentaires || ''
       })
       setEditMode(false)
@@ -87,6 +88,7 @@ export default function ObjectDetails({ object, collections, onClose, onSave }) 
       cheminPhoto: form.cheminPhoto || null,
       dateProduction: form.dateProduction ? new Date(form.dateProduction).toISOString() : null,
       dateAcquisition: form.dateAcquisition ? new Date(form.dateAcquisition).toISOString() : null,
+      lieuAcquisition: form.lieuAcquisition?.trim() || null,
       commentaires: form.commentaires || null
     }
     if (onSave) await onSave(payload)
@@ -257,6 +259,23 @@ export default function ObjectDetails({ object, collections, onClose, onSave }) 
           </div>
 
           <div>
+            <label style={{ display: 'block', fontWeight: 600, color: c.textMuted, marginBottom: 6 }}>Lieu d'acquisition</label>
+            {editMode ? (
+              <input
+                type="text"
+                value={form.lieuAcquisition}
+                onChange={(e) => setForm({ ...form, lieuAcquisition: e.target.value })}
+                placeholder="Ex: Paris"
+                style={{ width: '100%', padding: '10px 12px', border: `1px solid ${c.border}`, borderRadius: 6, background: c.input, color: c.text }}
+              />
+            ) : (
+              <div style={{ padding: '10px 12px', background: c.readonlyBg, borderRadius: 6, color: c.text }}>
+                {object.lieuAcquisition || '—'}
+              </div>
+            )}
+          </div>
+
+          <div>
             <label style={{ display: 'block', fontWeight: 600, color: c.textMuted, marginBottom: 6 }}>Commentaires</label>
             {editMode ? (
               <textarea
@@ -292,6 +311,7 @@ export default function ObjectDetails({ object, collections, onClose, onSave }) 
                     cheminPhoto: object.cheminPhoto || '',
                     dateProduction: object.dateProduction ? object.dateProduction.substring(0, 10) : '',
                     dateAcquisition: object.dateAcquisition ? object.dateAcquisition.substring(0, 10) : '',
+                    lieuAcquisition: object.lieuAcquisition || '',
                     commentaires: object.commentaires || ''
                   })
                 }}

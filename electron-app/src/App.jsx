@@ -3,18 +3,17 @@ import Drawer from './components/Drawer'
 import Home from './views/Home'
 import Collections from './views/Collections'
 import Utilisateur from './views/Utilisateur'
+import Carte from './views/Carte'
 import { useTheme } from './contexts/ThemeContext'
-
 
 export default function App() {
   const [currentView, setCurrentView] = useState('home')
   const [drawerCollapsed, setDrawerCollapsed] = useState(false)
-  const [selectedCollection, setSelectedCollection] = useState(null)
   const { theme } = useTheme()
 
   const colors = {
     light: {
-      background: '#f7fafc',
+      background: '#f5f6fa',
       text: '#2c3e50'
     },
     dark: {
@@ -23,47 +22,33 @@ export default function App() {
     }
   }
 
-  const currentColors = colors[theme]
+  const c = colors[theme]
 
   function renderView() {
     switch (currentView) {
       case 'home':
-        return <Home onSelectCollection={(collection) => { 
-          setSelectedCollection(collection)
-          setCurrentView('collections')
-        }} />
+        return <Home />
       case 'collections':
-        return <Collections selectedCollection={selectedCollection} />
+        return <Collections />
       case 'preferences':
+      case 'utilisateur':
         return <Utilisateur />
+      case 'carte':
+        return <Carte />
       default:
-        return <Home onSelectCollection={(collection) => { 
-          setSelectedCollection(collection)
-          setCurrentView('collections')
-        }} />
+        return <Home />
     }
   }
 
   return (
-    <div style={{ 
-      display: 'flex', 
-      height: '100vh', 
-      fontFamily: 'Segoe UI, Arial',
-      background: currentColors.background,
-      color: currentColors.text
-    }}>
+    <div style={{ display: 'flex', height: '100vh', fontFamily: 'Segoe UI, Arial', background: c.background, color: c.text }}>
       <Drawer 
         currentView={currentView} 
         onNavigate={setCurrentView} 
         collapsed={drawerCollapsed}
         onToggleCollapse={() => setDrawerCollapsed(!drawerCollapsed)}
       />
-      <div style={{ 
-        flex: 1, 
-        overflow: 'auto', 
-        background: currentColors.background,
-        color: currentColors.text
-      }}>
+      <div style={{ flex: 1, overflow: 'auto', background: c.background, color: c.text }}>
         {renderView()}
       </div>
     </div>

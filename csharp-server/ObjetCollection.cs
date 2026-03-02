@@ -17,6 +17,7 @@ namespace InventaireCatalogue
         private DateTime? dateProduction;
         private DateTime? dateAcquisition;
         private string? commentaires;
+        private string? lieuAcquisition;
 
         [BsonId]
         public int IdObjet { get => idObjet; set => idObjet = value; }
@@ -28,7 +29,7 @@ namespace InventaireCatalogue
         public DateTime? DateProduction { get => dateProduction; set => dateProduction = value; }
         public DateTime? DateAcquisition { get => dateAcquisition; set => dateAcquisition = value; }
         public string? Commentaires { get => commentaires; set => commentaires = value; }
-
+        public string? LieuAcquisition { get => lieuAcquisition; set => lieuAcquisition = value; }
         // Constructeur vide REQUIS par LiteDB pour désérialiser les objets depuis la DB
         // Ne pas utiliser directement dans le code - utiliser les constructeurs paramétrés
         public ObjetCollection() 
@@ -43,12 +44,13 @@ namespace InventaireCatalogue
         //   - new ObjetCollection(1, "Label", 5, cheminPhoto: "path/to/photo")
         //   - new ObjetCollection(1, "Label", 5, commentaires: "Mes commentaires")
         //   - new ObjetCollection(1, "Label", 5, dateProduction: DateTime.Now)
-        //   - new ObjetCollection(1, "Label", 5, "path/to/photo", DateTime.Now, DateTime.Now, "Commentaires")
+        //   - new ObjetCollection(1, "Label", 5, "path/to/photo", DateTime.Now, DateTime.Now, "Commentaires", "Lieu d'acquisition"<)
         public ObjetCollection(int id, string label, int categorieID, 
                                string? cheminPhoto = null, 
                                DateTime? dateProduction = null, 
                                DateTime? dateAcquisition = null, 
-                               string? commentaires = null)
+                               string? commentaires = null,
+                               string? lieuAcquisition = null)
         {
             this.idObjet = id;
             this.label = label;
@@ -57,6 +59,7 @@ namespace InventaireCatalogue
             this.dateProduction = dateProduction;
             this.dateAcquisition = dateAcquisition;
             this.commentaires = commentaires;
+            this.lieuAcquisition = lieuAcquisition;
         }
 
     }

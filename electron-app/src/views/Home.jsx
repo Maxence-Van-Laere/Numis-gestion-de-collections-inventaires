@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+  import React, { useEffect, useState } from 'react'
 import CollectionList from '../components/CollectionList'
 import { useTheme } from '../contexts/ThemeContext'
 
