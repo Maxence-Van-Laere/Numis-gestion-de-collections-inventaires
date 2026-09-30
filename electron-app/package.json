@@ -82,6 +82,12 @@
         "directories": {
             "output": "release",
             "buildResources": "public"
+        },
+        "publish": {
+            "provider": "github",
+            "owner": "Maxence-Van-Laere",
+            "repo": "Numis-gestion-de-collections-inventaires",
+            "releaseType": "release"
         }
     }
 }

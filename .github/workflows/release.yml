@@ -6,6 +6,9 @@ on:
       - 'v*.*.*'
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build-windows:
     runs-on: windows-latest
@@ -49,19 +52,7 @@ jobs:
     - name: Build Electron App
       run: |
         cd electron-app
-        npm run dist
-        
-    - name: Create Release
-      uses: softprops/action-gh-release@v1
-      if: startsWith(github.ref, 'refs/tags/')
-      with:
-        files: |
-          electron-app/release/*.exe
-          electron-app/release/latest.yml
-          electron-app/release/*.blockmap
-        draft: false
-        prerelease: false
-        generate_release_notes: true
+        npm run build
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
