@@ -50,7 +50,6 @@ logs/
 /electron-app/public
 build-portable.ps1
 DEPLOYMENT.md
-.github/
 
 
 Next_step.txt

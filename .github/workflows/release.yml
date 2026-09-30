@@ -1,0 +1,72 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        
+    - name: Build C# Backend
+      run: |
+        cd csharp-server
+        dotnet publish -c Release -o publish --self-contained false
+        
+    - name: Copy Backend to Electron App
+      run: |
+        New-Item -ItemType Directory -Force -Path electron-app\public\backend
+        Copy-Item -Path csharp-server\publish\* -Destination electron-app\public\backend\ -Recurse -Force
+        
+    - name: Install Electron App Dependencies
+      run: |
+        cd electron-app
+        npm ci
+
+    - name: Set Electron version from tag
+      if: startsWith(github.ref, 'refs/tags/')
+      shell: pwsh
+      run: |
+        cd electron-app
+        npm version $env:GITHUB_REF_NAME --no-git-tag-version --allow-same-version
+        
+    - name: Build Electron App
+      run: |
+        cd electron-app
+        npm run dist
+        
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: |
+          electron-app/release/*.exe
+          electron-app/release/latest.yml
+          electron-app/release/*.blockmap
+        draft: false
+        prerelease: false
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: app-collections-windows
+        path: electron-app/release/*.exe
