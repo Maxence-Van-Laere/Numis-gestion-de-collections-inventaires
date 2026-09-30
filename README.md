@@ -7,7 +7,7 @@ Pour toute information relative à l'architecture, au code source de l'applicati
 
 ## Guide Installation
 
-### Application Portable (Recommandée)
+### Application Portable 
 1. Téléchargez le fichier `Numis-Portable-X.X.X.exe`
 2. Double-cliquez sur l'exécutable pour lancer l'application
 3. Aucune installation n'est requise !

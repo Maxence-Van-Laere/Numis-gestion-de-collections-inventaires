@@ -2,10 +2,44 @@ const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const { spawn } = require('child_process');
 const path = require('path');
 const isDev = require('electron-is-dev');
+const { autoUpdater } = require('electron-updater');
 // Import explicite du module local pour éviter les résolutions ambiguës en production
 const db = require('./db.js');
 
 let backendProcess = null;
+
+function setupAutoUpdater() {
+  if (isDev || !app.isPackaged || process.platform !== 'win32') return;
+
+  autoUpdater.autoDownload = true;
+  autoUpdater.autoInstallOnAppQuit = true;
+
+  autoUpdater.on('error', (error) => {
+    console.warn('Auto-update error:', error.message);
+  });
+
+  autoUpdater.on('update-available', (info) => {
+    console.log(`Update available: ${info.version}`);
+  });
+
+  autoUpdater.on('update-downloaded', async () => {
+    const result = await dialog.showMessageBox({
+      type: 'info',
+      buttons: ['Redémarrer maintenant', 'Plus tard'],
+      defaultId: 0,
+      cancelId: 1,
+      title: 'Mise à jour disponible',
+      message: 'Une nouvelle version de Numis est prête à être installée.',
+      detail: 'L’application va redémarrer pour terminer la mise à jour.'
+    });
+
+    if (result.response === 0) autoUpdater.quitAndInstall();
+  });
+
+  autoUpdater.checkForUpdatesAndNotify().catch((error) => {
+    console.warn('Unable to check for updates:', error.message);
+  });
+}
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -64,6 +98,7 @@ app.whenReady().then(async () => {
     }
   }
   createWindow();
+  setupAutoUpdater();
 
   app.on('activate', function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();

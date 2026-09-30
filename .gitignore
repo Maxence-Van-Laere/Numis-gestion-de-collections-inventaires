@@ -51,6 +51,9 @@ logs/
 build-portable.ps1
 DEPLOYMENT.md
 .github/
+!.github/
+!.github/workflows/
+!.github/workflows/release.yml
 
 
 Next_step.txt
