@@ -10,6 +10,11 @@ async function req(path, opts) {
 
 contextBridge.exposeInMainWorld('api', {
   listCollections: () => req('/collections'),
+  exportDatabase: () => req('/export/json'),
+  importDatabase: (data, mode = 'replace') => req(`/import/json?mode=${encodeURIComponent(mode)}`, {
+    method: 'POST',
+    body: JSON.stringify(data)
+  }),
   createCollection: (name) => req('/collections', { method: 'POST', body: JSON.stringify({ name }) }),
   deleteCollection: (id) => fetch(API_BASE + `/collections/${id}`, { method: 'DELETE' }).then(r => { if (!r.ok) throw new Error('Delete failed') }),
   listObjects: (collectionId) => req(`/collections/${collectionId}/objects`),

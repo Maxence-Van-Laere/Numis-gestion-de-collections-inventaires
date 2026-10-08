@@ -26,6 +26,120 @@ app.MapGet("/debug/stats", () => {
     });
 });
 
+app.MapGet("/export/json", () =>
+{
+    var export = new DatabaseExportDto(
+        1,
+        DateTime.UtcNow,
+        Database.listeCategories.FindAll()
+            .Select(category => new ExportCategoryDto(
+                category.CategorieId,
+                category.NomCollection,
+                category.DateCreation,
+                category.DateDerniereModif))
+            .ToList(),
+        Database.listeObjets.FindAll()
+            .Select(objet => new ExportObjectDto(
+                objet.IdObjet,
+                objet.CategorieId,
+                objet.Label,
+                objet.CheminPhoto,
+                objet.DateProduction,
+                objet.DateAcquisition,
+                objet.Commentaires,
+                objet.LieuAcquisition))
+            .ToList());
+
+    return Results.Json(export);
+});
+
+app.MapPost("/import/json", (DatabaseExportDto? import, string? mode) =>
+{
+    var importMode = string.IsNullOrWhiteSpace(mode) ? "replace" : mode.Trim().ToLowerInvariant();
+    if (importMode != "replace" && importMode != "merge")
+    {
+        return Results.BadRequest(new { error = "Mode d'import invalide. Utilisez 'replace' ou 'merge'." });
+    }
+
+    if (import == null || import.SchemaVersion != 1)
+    {
+        return Results.BadRequest(new { error = "Format d'export non pris en charge." });
+    }
+
+    if (import.Collections == null || import.Objects == null)
+    {
+        return Results.BadRequest(new { error = "Le fichier d'export est incomplet." });
+    }
+
+    var collectionIds = import.Collections.Select(collection => collection.Id).ToList();
+    if (collectionIds.Any(id => id <= 0) || collectionIds.Distinct().Count() != collectionIds.Count)
+    {
+        return Results.BadRequest(new { error = "Les identifiants des collections sont invalides ou dupliqués." });
+    }
+
+    if (import.Collections.Any(collection => string.IsNullOrWhiteSpace(collection.Name)))
+    {
+        return Results.BadRequest(new { error = "Une collection ne possède pas de nom valide." });
+    }
+
+    var objectIds = import.Objects.Select(objet => objet.Id).ToList();
+    if (objectIds.Any(id => id <= 0) || objectIds.Distinct().Count() != objectIds.Count)
+    {
+        return Results.BadRequest(new { error = "Les identifiants des objets sont invalides ou dupliqués." });
+    }
+
+    var knownCollectionIds = collectionIds.ToHashSet();
+    if (import.Objects.Any(objet => !knownCollectionIds.Contains(objet.CollectionId)))
+    {
+        return Results.BadRequest(new { error = "Un objet référence une collection inexistante." });
+    }
+
+    if (import.Objects.Any(objet => string.IsNullOrWhiteSpace(objet.Label)))
+    {
+        return Results.BadRequest(new { error = "Un objet ne possède pas de label valide." });
+    }
+
+    var categories = import.Collections.Select(collection => new Categorie(collection.Id, collection.Name)
+    {
+        DateCreation = collection.CreatedAt,
+        DateDerniereModif = collection.UpdatedAt
+    }).ToList();
+
+    var objects = import.Objects.Select(objet => new ObjetCollection(
+        objet.Id,
+        objet.Label,
+        objet.CollectionId,
+        objet.PhotoPath,
+        objet.ProductionDate,
+        objet.AcquisitionDate,
+        objet.Comments,
+        objet.AcquisitionLocation)).ToList();
+
+    try
+    {
+        if (importMode == "merge")
+        {
+            Database.MergeData(categories, objects);
+        }
+        else
+        {
+            Database.ReplaceData(categories, objects);
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"[ERROR] Import JSON échoué : {ex.Message}");
+        return Results.Problem("L'import n'a pas pu être terminé.");
+    }
+
+    return Results.Ok(new
+    {
+        mode = importMode,
+        collections = categories.Count,
+        objects = objects.Count
+    });
+});
+
 app.MapGet("/collections", () => {
     Console.WriteLine("[DEBUG] GET /collections - Récupération de toutes les collections");
     var cats = Database.listeCategories.FindAll().ToList();
@@ -255,3 +369,6 @@ public record CreateCollectionDto(string name);
 public record CreateObjectDto(int collectionId, string label, string? cheminPhoto, DateTime? dateProduction, DateTime? dateAcquisition, string? commentaires, string? lieuAcquisition);
 public record UpdateObjectDto(string? label, string? cheminPhoto, DateTime? dateProduction, DateTime? dateAcquisition, string? commentaires, string? lieuAcquisition);
 public record MoveObjectsDto(List<int> objectIds, int targetCollectionId);
+public record DatabaseExportDto(int SchemaVersion, DateTime ExportedAt, List<ExportCategoryDto> Collections, List<ExportObjectDto> Objects);
+public record ExportCategoryDto(int Id, string Name, DateTime CreatedAt, DateTime UpdatedAt);
+public record ExportObjectDto(int Id, int CollectionId, string Label, string? PhotoPath, DateTime? ProductionDate, DateTime? AcquisitionDate, string? Comments, string? AcquisitionLocation);
